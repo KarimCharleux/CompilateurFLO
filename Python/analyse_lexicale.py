@@ -10,10 +10,10 @@ class FloLexer(Lexer):
 	#Donc, si une règle commence par un de ces littérals (comme INFERIEUR_OU_EGAL), cette règle aura la priorité.
 	literals = { '+','*','(',')',";" }
 	
-	# chaines contenant les caractère à ignorer. Ici espace et tabulation
+	# Chaines contenant les caractères à ignorer. Ici espace et tabulation
 	ignore = ' \t'
 
-	# Expressions régulières correspondant au différents Lexèmes par ordre de priorité
+	# Expressions régulières correspondant aux différents Lexèmes par ordre de priorité
 	INFERIEUR_OU_EGAL= r'<='
 	
 	@_(r'0|[1-9][0-9]*')
