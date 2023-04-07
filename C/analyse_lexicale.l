@@ -22,13 +22,31 @@ espace               [ \t\r\n]
 {espace}+            { /* Ignorer espaces */       }
 "+"                  { return PLUS;                }
 "*"                  { return FOIS;                }
+"/"                  { return DIVISER              }
+"-"                  { return MOINS                }
+"="                  { return EQUAL                }
+"<"                  { return INFERIEUR            }
+">"                  { return SUPERIEUR            }
+">="                 { return SUPERIEUR_OU_EQUAL   }
+"<="                 { return INFERIEUR_OU_EQUAL   }
 "("                  { return PARENTHESE_OUVRANTE; }
 ")"                  { return PARENTHESE_FERMANTE; }
 "ecrire"             { return ECRIRE;              }
 ";"                  { return POINT_VIRGULE;       }
 {entier}             { yylval.entier=atoi(yytext); return ENTIER;}
 {lettre}{alphanum}*  { return IDENTIFIANT;         }
-<<EOF>>              { return FIN; }  /* Fin de fichier */
+<<EOF>>              { return FIN;                 }  /* Fin de fichier */
+"si"                 { return SI                   }
+"sinon"              { return SINON                }
+"Vrai"               { return TRUE                 }
+"Faut"               { return FALSE                }
+"tantque"            { return WHILE                }
+"ou"                 { return OR                   }
+"non"                { return NOT                  }
+"lire"               { return LIRE                 }
+"max"                { return MAX                  }
+"%"                  { return MODULO               }
+
 .                    {                                /* Erreur, autre caractètre quelconque */
                        fprintf( stderr, "Ligne %d: caractère invalide: %s\n", yylineno,yytext ); \
                        exit(-1); 
