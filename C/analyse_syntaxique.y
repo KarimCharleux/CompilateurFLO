@@ -27,18 +27,44 @@ n_programme* arbre_abstrait;
 %token IDENTIFIANT
 %token PLUS
 %token FOIS
+%token DIVISER
+%token MOINS
+%token EQUAL
+%token INFERIEUR
+%token SUPERIEUR
+%token SUPERIEUR_OU_EQUAL
+%token INFERIEUR_OU_EQUAL
 %token PARENTHESE_OUVRANTE
 %token PARENTHESE_FERMANTE
 %token POINT_VIRGULE
 %token <entier> ENTIER
 %token ECRIRE
 %token FIN 0
+%token SI
+%token SINON
+%token VRAI
+%token FAUX
+%token TANTQUE
+%token OU
+%token NON
+%token LIRE
+%token MAX
+%token MODULO
+%token VIRGULE
+%token ACCOLADE_OUVRANTE
+%token ACCOLADE_FERMANTE
+%token ET
+%token OU
+
+//completer
 
 %type <prog> prog
 %type <l_inst> listeInstructions
 %type <inst> instruction
 %type <inst> ecrire
-%type <exp> expr 
+%type <inst> lire
+%type <inst> max
+%type <exp> expr
 
 %%
 
@@ -63,6 +89,14 @@ ecrire: ECRIRE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE POINT_VIRGULE {
 	$$ =creer_n_ecrire($3);
 }
 
+instruction: lire {
+	$$ =$1;
+}
+
+lire: LIRE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE POINT_VIRGULE {
+	$$ =creer_n_lire($3);
+}
+
 expr: expr PLUS expr{
 	$$ =creer_n_operation('+', $1, $3);
 }
@@ -71,13 +105,55 @@ expr: expr FOIS expr{
 	$$ =creer_n_operation('*', $1 , $3);
 }
 
-expr: PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE {
+expr: expr MOINS expr{
+    $$ =creer_n_operation('-', $1 , $3);
+}
+
+expr: expr MODULO expr{
+    $$ =creer_n_operation('%', $1 , $3);
+}
+
+expr: expr DIVISER expr POINT_VIRGULE{
+    $$ =creer_n_operation('/', $1 , $3);
+}
+
+expr: PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE  POINT_VIRGULE{
 	$$ =$2 ;
 }
 
-expr: ENTIER {
+expr: ENTIER{
 	$$ = creer_n_entier($1);
 }
+
+instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE FIN
+{
+   $$ =creer_n_operation('&', 1, $3);
+}
+instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE FIN
+{
+    $$ =creer_n_operation('&', 1, $3);
+}
+
+instruction: TANTQUE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE listeInstructions FIN{}
+
+
+expr: expr OU expr POINT_VIRGULE {
+    $$ =creer_n_operation('|', $1 , $3);
+}
+
+expr: NON expr POINT_VIRGULE {}
+
+instruction: max {
+	$$ =$1;
+}
+
+max: MAX PARENTHESE_OUVRANTE expr VIRGULE expr PARENTHESE_FERMANTE POINT_VIRGULE {
+	
+	$$ =creer_n_max($3);
+}
+
+expr: expr ET expr {}
+expr: expr OU expr {}
 
 
 

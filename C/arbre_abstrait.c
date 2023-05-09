@@ -105,6 +105,20 @@ n_instruction* creer_n_ecrire(n_exp* exp){
   return n;
 }
 
+n_instruction* creer_n_lire(n_exp* exp){
+  n_instruction* n = malloc(sizeof(n_instruction));
+  n->type_instruction = i_lire;
+  n->u.exp = exp;
+  return n;
+}
+
+n_instruction* creer_n_max(n_exp* exp){
+  n_instruction* n = malloc(sizeof(n_instruction));
+  n->type_instruction = i_max;
+  n->u.exp = exp;
+  return n;
+}
+
 n_exp* creer_n_entier(int valeur){
   n_exp* n = malloc(sizeof(n_exp));
   n->type_exp = i_entier;

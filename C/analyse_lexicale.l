@@ -1,5 +1,6 @@
 /*
  * Analyseur lexical du compilateur L en FLEX
+ * Representer tout ce qui peut etre decrit par regex
  */
  
 %{
@@ -22,30 +23,36 @@ espace               [ \t\r\n]
 {espace}+            { /* Ignorer espaces */       }
 "+"                  { return PLUS;                }
 "*"                  { return FOIS;                }
-"/"                  { return DIVISER              }
-"-"                  { return MOINS                }
-"="                  { return EQUAL                }
-"<"                  { return INFERIEUR            }
-">"                  { return SUPERIEUR            }
-">="                 { return SUPERIEUR_OU_EQUAL   }
-"<="                 { return INFERIEUR_OU_EQUAL   }
+"/"                  { return DIVISER;             }
+"-"                  { return MOINS;               }
+"="                  { return EQUAL;               }
+"<"                  { return INFERIEUR;           }
+">"                  { return SUPERIEUR;           }
+">="                 { return SUPERIEUR_OU_EQUAL;  }
+"<="                 { return INFERIEUR_OU_EQUAL;  }
 "("                  { return PARENTHESE_OUVRANTE; }
 ")"                  { return PARENTHESE_FERMANTE; }
+"{"                  { return ACCOLADE_OUVRANTE;   }
+"}"                  { return ACCOLADE_FERMANTE;   }
 "ecrire"             { return ECRIRE;              }
 ";"                  { return POINT_VIRGULE;       }
+","                  { return VIRGULE;             }
+"si"                 { return SI;                  }
+"et"                 { return ET;                  }
+"ou"                 { return OU;                  }
+<<EOF>>              { return FIN;                 }  /* Fin de fichier */
+"sinon"              { return SINON;               }
+"Vrai"               { return VRAI;                }
+"Faux"               { return FAUX;                }
+"tantque"            { return TANTQUE;             }
+"ou"                 { return OU;                  }
+"non"                { return NON;                 }
+"lire"               { return LIRE;                }
+"max"                { return MAX;                 }
+"%"                  { return MODULO;              }
 {entier}             { yylval.entier=atoi(yytext); return ENTIER;}
 {lettre}{alphanum}*  { return IDENTIFIANT;         }
-<<EOF>>              { return FIN;                 }  /* Fin de fichier */
-"si"                 { return SI                   }
-"sinon"              { return SINON                }
-"Vrai"               { return TRUE                 }
-"Faut"               { return FALSE                }
-"tantque"            { return WHILE                }
-"ou"                 { return OR                   }
-"non"                { return NOT                  }
-"lire"               { return LIRE                 }
-"max"                { return MAX                  }
-"%"                  { return MODULO               }
+
 
 .                    {                                /* Erreur, autre caractètre quelconque */
                        fprintf( stderr, "Ligne %d: caractère invalide: %s\n", yylineno,yytext ); \
@@ -59,11 +66,13 @@ int yywrap(){
 /*******************************************************************************
  * Fonction auxiliaire qui donne le nom des différents tokens
  ******************************************************************************/
+//  prend le int qui correspond au caractere defini
 
-int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE};
-char *str_token[] = {"+","*""(",")",";","ECRIRE"};
 
-int nbMotsClefs = 5;
+int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE, SI, SINON, VRAI, FAUX, TANTQUE, OU, NON, LIRE, MAX, MODULO, ACCOLADE_OUVRANTE, ACCOLADE_FERMANTE, EQUAL, VIRGULE, SUPERIEUR_OU_EQUAL, INFERIEUR_OU_EQUAL, ET, OU, INFERIEUR, SUPERIEUR, DIVISER, MOINS};
+char *str_token[] = {"+","*","(",")", "ecrire", ";", "si", "sinon", "vrai", "faux", "tantque", "||", "!", "lire", "max", "%", "{", "}", "=", ",", ">=", "<=", "&", "|", "<", ">", "/", "-"};
+
+int nbMotsClefs = 28;
 
 void nom_token( int token, char *nom, char *valeur ) {   
 

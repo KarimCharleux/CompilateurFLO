@@ -25,7 +25,7 @@ struct n_l_instructions{
 };
 
 struct n_instruction{
-  enum { i_ecrire } type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
+  enum { i_ecrire, i_lire, i_max} type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
   union{ 
     n_exp* exp; // pour ecrire(exp);
   }u;
@@ -55,6 +55,8 @@ void afficher_n_operation(n_operation* operation ,int indent);
 n_programme* creer_n_programme(n_l_instructions* instructions);
 n_l_instructions* creer_n_l_instructions(n_instruction* instruction ,n_l_instructions* instructions);
 n_instruction* creer_n_ecrire(n_exp* exp);
+n_instruction* creer_n_lire(n_exp* exp);
+n_instruction* creer_n_max(n_exp* exp);
 n_exp* creer_n_entier(int valeur);
 n_exp* creer_n_operation(char type_operation, n_exp* exp1, n_exp* exp2);
 #endif
