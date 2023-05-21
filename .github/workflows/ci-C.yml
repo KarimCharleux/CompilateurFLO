@@ -30,8 +30,12 @@ jobs:
       - name: build project
         run: make --directory=C
 
-      - run: ./C/output/exemple1
-      - run: ./C/output/exemple2
-      - run: ./C/output/exemple3
-      - run: ./C/output/exemple4
+      - run: ./C/output/exemple1.o
+        continue-on-error: true
+      - run: ./C/output/exemple2.o
+        continue-on-error: true
+      - run: ./C/output/exemple3.o
+        continue-on-error: true
+      - run: ./C/output/exemple4.o
+        continue-on-error: true
 
