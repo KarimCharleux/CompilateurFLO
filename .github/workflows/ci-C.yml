@@ -21,9 +21,6 @@ jobs:
           make: true
           cache: cppcache
 
-      - name: Prevent bad push
-        run: make clear --directory=C
-
       - name: build main
         run: make main --directory=C
 
