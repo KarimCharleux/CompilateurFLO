@@ -54,7 +54,6 @@ n_programme* arbre_abstrait;
 %token ACCOLADE_OUVRANTE
 %token ACCOLADE_FERMANTE
 %token ET
-%token OU
 
 //completer
 
@@ -63,7 +62,6 @@ n_programme* arbre_abstrait;
 %type <inst> instruction
 %type <inst> ecrire
 %type <inst> lire
-%type <inst> max
 %type <exp> expr
 
 %%
@@ -93,9 +91,30 @@ instruction: lire {
 	$$ =$1;
 }
 
-lire: LIRE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE POINT_VIRGULE {
-	$$ =creer_n_lire($3);
+lire: LIRE PARENTHESE_OUVRANTE PARENTHESE_FERMANTE POINT_VIRGULE {
+	$$ =creer_n_lire();
 }
+
+instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+{
+    $$ = creer_n_condition($3, $6, NULL);
+}
+
+instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+{
+    $$ = creer_n_condition($3, $6, $10);
+}
+
+instruction: TANTQUE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+{
+    $$ = creer_n_boucle($3, $6);
+}
+
+
+
+
+
+
 
 expr: expr PLUS expr{
 	$$ =creer_n_operation('+', $1, $3);
@@ -125,36 +144,15 @@ expr: ENTIER{
 	$$ = creer_n_entier($1);
 }
 
-instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE FIN
-{
-   $$ =creer_n_operation('&', 1, $3);
-}
-instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE FIN
-{
-    $$ =creer_n_operation('&', 1, $3);
-}
-
-instruction: TANTQUE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE listeInstructions FIN{}
-
-
 expr: expr OU expr POINT_VIRGULE {
     $$ =creer_n_operation('|', $1 , $3);
 }
 
+expr: expr ET expr {
+    $$ =creer_n_operation('&', $1, $3);
+}
+
 expr: NON expr POINT_VIRGULE {}
-
-instruction: max {
-	$$ =$1;
-}
-
-max: MAX PARENTHESE_OUVRANTE expr VIRGULE expr PARENTHESE_FERMANTE POINT_VIRGULE {
-	
-	$$ =creer_n_max($3);
-}
-
-expr: expr ET expr {}
-expr: expr OU expr {}
-
 
 
 %%

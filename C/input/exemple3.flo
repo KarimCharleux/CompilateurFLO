@@ -1,4 +1,9 @@
-si (1) {
+si (1)
+{
     ecrire(10);
 }
+sinon
+{
+    ecrire(5);
+};
 

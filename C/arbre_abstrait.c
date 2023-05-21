@@ -65,6 +65,13 @@ void afficher_n_instruction(n_instruction* instruction ,int indent){
 		afficher_n_exp(instruction->u.exp,indent+1);
 		afficher("</ecrire>",indent);
 	}
+	if(instruction->type_instruction == i_condition){
+		afficher_n_condition(instruction->u.condition,indent+1);
+	}
+	if(instruction->type_instruction == i_boucle)
+	{
+		afficher_n_boucle(instruction->u.boucle, indent+1);
+	}
 }
 
 
@@ -78,11 +85,33 @@ void afficher_n_exp(n_exp* exp ,int indent){
 
 
 void afficher_n_operation(n_operation* operation ,int indent){
-		afficher("<operation>",indent);
-		afficher_caractere(operation->type_operation,indent+1);
-		afficher_n_exp(operation->exp1,indent+1);
-		afficher_n_exp(operation->exp2,indent+1);
-		afficher("</operation>",indent);
+	afficher("<operation>",indent);
+	afficher_caractere(operation->type_operation,indent+1);
+	afficher_n_exp(operation->exp1,indent+1);
+	afficher_n_exp(operation->exp2,indent+1);
+	afficher("</operation>",indent);
+}
+void afficher_n_condition(n_condition condition, int indent)
+{
+	afficher("<condition>",indent);
+	afficher_n_exp(condition.expr,indent+1);
+	afficher("</condition>",indent);
+	afficher_n_l_instructions(condition.l_instructions, indent+1);
+	if(condition.l_instructions_2 !=NULL)
+	{
+		afficher("<sinon>",indent);
+		afficher_n_l_instructions(condition.l_instructions_2, indent+1);
+		afficher("</fin-conditionnel>",indent);
+	}
+}
+void afficher_n_boucle(n_boucle i_boucle, int indent)
+{
+	afficher("<tantque>",indent);
+	afficher_n_exp(i_boucle.expr,indent+1);
+	afficher("</tanque>",indent);
+	afficher("<faire>", indent);
+	afficher_n_l_instructions(i_boucle.l_instructions, indent+1);
+	afficher("</faire>", indent);
 }
 
 n_programme* creer_n_programme(n_l_instructions* instructions){
@@ -105,17 +134,9 @@ n_instruction* creer_n_ecrire(n_exp* exp){
   return n;
 }
 
-n_instruction* creer_n_lire(n_exp* exp){
+n_instruction* creer_n_lire(){
   n_instruction* n = malloc(sizeof(n_instruction));
   n->type_instruction = i_lire;
-  n->u.exp = exp;
-  return n;
-}
-
-n_instruction* creer_n_max(n_exp* exp){
-  n_instruction* n = malloc(sizeof(n_instruction));
-  n->type_instruction = i_max;
-  n->u.exp = exp;
   return n;
 }
 
@@ -136,4 +157,23 @@ n_exp* creer_n_operation(char type_operation,n_exp* exp1,n_exp* exp2){
   n_op->exp2 = exp2;
   return n;
 }
-  
+
+n_instruction* creer_n_condition(n_exp* expr, n_l_instructions* l_instructions, n_l_instructions* l_instructions_2)
+{
+	n_instruction* n = malloc(sizeof(n_instruction));
+  	n->type_instruction = i_condition;
+  	n->u.condition.expr = expr;
+  	n->u.condition.l_instructions = l_instructions;
+  	n->u.condition.l_instructions_2 = l_instructions_2;
+  	return n;
+}
+
+n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions)
+{
+	n_instruction* n= malloc(sizeof(n_instruction));
+	n->type_instruction = i_boucle;
+	n->u.boucle.expr = expr;
+	n->u.boucle.l_instructions = l_instructions;
+
+	return n;
+}
