@@ -1,7 +1,7 @@
 INPUT = exemple1 exemple2 exemple3 exemple4
 
 assembleur_vers_exercutable: generation_code_nasm
-	for a in $(INPUT); do echo "Assemblage: " $${a}; nasm -g output/nasm/$${a}.nasm -f elf -o output/$${a}.o; ld --arch elf_i386  -static -o output/$${a} output/$${a}.o; done;
+	for a in $(INPUT); do echo "Assemblage: " $${a}; nasm -g output/nasm/$${a}.nasm -f elf -o output/$${a}.o; ld -A elf_i386  -static -o output/$${a} output/$${a}.o; done;
 
 generation_code_nasm: main
 	mkdir -p output/nasm; 
