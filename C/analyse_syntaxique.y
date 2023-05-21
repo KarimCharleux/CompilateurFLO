@@ -152,6 +152,16 @@ expr: expr ET expr {
     $$ =creer_n_operation('&', $1, $3);
 }
 
+expr: expr INFERIEUR_OU_EQUAL expr {
+    $$ =creer_n_operation('i', $1, $3);
+}
+expr: expr SUPERIEUR_OU_EQUAL expr {
+    $$ =creer_n_operation('s', $1, $3);
+}
+expr: expr EQUAL expr {
+    $$ =creer_n_operation('e', $1, $3);
+}
+
 expr: NON expr POINT_VIRGULE {}
 
 

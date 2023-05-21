@@ -8,6 +8,10 @@
 #define printifm(format, ...) if(afficher_nasm){ printf(format, __VA_ARGS__); }
 
 int afficher_nasm = 1;
+int if_label_count= 0;
+int else_label_count= 0;
+int fin_label_count= 0;
+int label_count= 0;
 
 /* fonction locale, permet d'afficher un commentaire */
 void nasm_comment(char *comment) {
@@ -65,6 +69,46 @@ void nasm_instruction(n_instruction* n){
 		nasm_commande("pop", "eax", NULL, NULL, NULL); //on dépile la valeur d'expression sur eax
 		nasm_commande("call", "iprintLF", NULL, NULL, NULL); //on envoie la valeur d'eax sur la sortie standard
 	}
+  if(n->type_instruction == i_lire){
+	}
+  if(n->type_instruction == i_condition){
+    nasm_exp(n->u.condition.expr);
+    nasm_commande("pop", "eax", NULL, NULL, NULL);
+    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
+    // on crée les labels pour le si, le else et la fin
+    char label_if[10];
+    sprintf(label_if, "if%d", if_label_count);
+    char label_else[10];
+    sprintf(label_else, "else%d", else_label_count);
+    char label_endif[10];
+    sprintf(label_endif, "endif%d", fin_label_count);
+
+
+    nasm_commande("jmp", label_if, NULL, NULL, "Aller au si");
+    nasm_commande("jmp", label_else, NULL, NULL, "Aller au sinon");
+    sprintf(label_if, "if%d:", label_count);
+    nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
+    nasm_liste_instructions(n->u.condition.l_instructions);
+
+    if(n->u.condition.l_instructions_2==NULL)
+    {
+      sprintf(label_endif, "endif%d:", fin_label_count);
+      nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
+    }
+    else
+    {
+      sprintf(label_else, "else%d:", label_count);
+      nasm_commande(label_else, NULL, NULL, NULL, "Aller dans le sinon");
+      nasm_liste_instructions(n->u.condition.l_instructions_2);
+      sprintf(label_endif, "endif%d:", fin_label_count);
+      nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
+    }
+	}
+  if(n->type_instruction == i_boucle)
+  {
+
+	}
+
 }
 
 void nasm_exp(n_exp* n){
@@ -73,7 +117,7 @@ void nasm_exp(n_exp* n){
 	} else if (n->type_exp == i_entier){
 	      char buffer[10];
 	      sprintf(buffer, "%d", n->u.valeur);
-      	      nasm_commande("push", buffer, NULL, NULL, NULL) ;
+      	nasm_commande("push", buffer, NULL, NULL, NULL) ;
 	}
 }
 
@@ -83,10 +127,52 @@ void nasm_operation(n_operation* n){
   nasm_commande("pop", "ebx", NULL, NULL, "depile la seconde operande dans ebx");
   nasm_commande("pop", "eax", NULL, NULL, "depile la permière operande dans eax");
   if (n->type_operation == '+'){
-      nasm_commande("add", "eax", "ebx", NULL, "effectue l'opération");
+      nasm_commande("add", "eax", "ebx", NULL, "operation +");
   }
   else if(n->type_operation == '*'){
-    nasm_commande("imul", "ebx", NULL, NULL, "effectue l'opération");
+    nasm_commande("imul", "ebx", NULL, NULL, "operation *");
+  }
+  else if(n->type_operation == '-'){
+    nasm_commande("sub", "ebx", NULL, NULL, "operation -");
+  }
+  else if(n->type_operation == '/'){
+    nasm_commande("idiv", "ebx", NULL, NULL, "operation /");
+  }
+  else if(n->type_operation == '%'){
+    nasm_commande("mov", "edx", "0", NULL, "");
+    nasm_commande("idiv", "ebx", NULL, NULL, "operation /");   
+    nasm_commande("mov", "eax", "edx", NULL, "");  
+  }
+  else if(n->type_operation == '<'){
+    nasm_commande("cmp", "eax", "ebx", NULL, "compare");
+    nasm_commande("setl", "al", NULL, NULL, "set 1 dans al si eax < ebx");
+    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+  }
+  else if(n->type_operation == '>'){
+    nasm_commande("cmp", "eax", "ebx", NULL, "compare");
+    nasm_commande("setg", "al", NULL, NULL, "met 1 dans al si eax > ebx");
+    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+  }
+  else if(n->type_operation == '|'){
+     nasm_commande("or", "eax", "ebx", NULL, "opération |");
+  }
+  else if(n->type_operation == '&'){
+    nasm_commande("and", "eax", "ebx", NULL, "opération &");
+  }
+  else if(n->type_operation == 'e'){
+    nasm_commande("cmp", "eax", "ebx", NULL, "compare");
+    nasm_commande("sete", "al", NULL, NULL, "met 1 dans al si eax == ebx");
+    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+  }
+  else if(n->type_operation == 'i'){
+    nasm_commande("cmp", "eax", "ebx", NULL, "compare");
+    nasm_commande("setle", "al", NULL, NULL, "met 1 dans al si eax <= ebx");
+    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+  }
+  else if(n->type_operation == 's'){
+    nasm_commande("cmp", "eax", "ebx", NULL, "compare");
+    nasm_commande("setge", "al", NULL, NULL, "met 1 dans al si eax >= ebx");
+    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   nasm_commande("push",  "eax" , NULL, NULL, "empile le résultat");  
 }

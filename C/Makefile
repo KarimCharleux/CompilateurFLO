@@ -1,12 +1,12 @@
-INPUT = exemple1 exemple2
+INPUT = exemple1 exemple2 exemple3 exemple4
 
 assembleur_vers_exercutable: generation_code_nasm main
-	for a in $(INPUT); do echo "Assemblage: " $${a}; nasm -g output/$${a}.nasm ; ld -e _start  -static -o output/$${a} output/$${a}.o; done;
-	
-#rm output/$${a}.o; rm output/$${a}.nasm ;  done;
+	for a in $(INPUT); do echo "Assemblage: " $${a}; nasm -g output/nasm/$${a}.nasm -f elf -o output/$${a}.o; rm output/$${a}.o;  done;
+#ld -arch i386  -static -o output/$${a} output/$${a}.o; done;
+
 
 generation_code_nasm:
-	for a in $(INPUT); do echo "Generation code nasm: " $${a}; ./main -n input/$${a}.flo > output/$${a}.nasm; done;
+	for a in $(INPUT); do echo "Generation code nasm: " $${a}; ./main -n input/$${a}.flo > output/nasm/$${a}.nasm; done;
 
 main: analyse_lexicale analyse_syntaxique
 	gcc -Wall main.c analyse_lexicale.c analyse_syntaxique.c arbre_abstrait.c generation_code.c -o main
