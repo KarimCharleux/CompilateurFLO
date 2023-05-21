@@ -17,5 +17,5 @@ analyse_lexicale:
 	flex -l -o analyse_lexicale.c analyse_lexicale.l
 	
 clear:
-	rm analyse_lexicale.c main analyse_syntaxique.c output/nasm/* output/exemple*
+	rm -f analyse_lexicale.c main analyse_syntaxique.c output/nasm/* output/exemple*
 
