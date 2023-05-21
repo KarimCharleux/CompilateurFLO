@@ -1,0 +1,30 @@
+name: CI-C
+
+on:
+  workflow_dispatch:
+  
+  push:
+    branches: 
+      - "main"
+  
+jobs:
+  
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Cpp (C++ / C)
+        uses: aminya/setup-cpp@v0.26.2
+      
+      - name: install make
+        run: apt install make
+
+      - name: build project
+        run: make --directory=C
+
+      - run: ./C/output/exemple1
+      - run: ./C/output/exemple2
+      - run: ./C/output/exemple3
+      - run: ./C/output/exemple4
+
