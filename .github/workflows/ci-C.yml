@@ -20,6 +20,9 @@ jobs:
           compiler: gcc
           make: true
           cache: cppcache
+      - name: Set up NASM
+        uses: ilammy/setup-nasm@v1.4.0
+
 
       - name: build main
         run: make main --directory=C
