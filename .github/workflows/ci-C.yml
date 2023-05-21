@@ -20,6 +20,9 @@ jobs:
           compiler: gcc
           make: true
 
+      - name: build main
+        run: make main --directory=C
+
       - name: build project
         run: make --directory=C
 
