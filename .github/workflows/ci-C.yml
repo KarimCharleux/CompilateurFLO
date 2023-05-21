@@ -30,12 +30,12 @@ jobs:
       - name: build project
         run: make --directory=C
 
-      - run: ./C/output/exemple1.o
+      - run: sudo ./C/output/exemple1.o
         continue-on-error: true
-      - run: ./C/output/exemple2.o
+      - run: sudo ./C/output/exemple2.o
         continue-on-error: true
-      - run: ./C/output/exemple3.o
+      - run: sudo ./C/output/exemple3.o
         continue-on-error: true
-      - run: ./C/output/exemple4.o
+      - run: sudo ./C/output/exemple4.o
         continue-on-error: true
 
