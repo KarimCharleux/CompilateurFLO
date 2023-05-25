@@ -152,6 +152,14 @@ expr: expr ET expr {
     $$ =creer_n_operation('&', $1, $3);
 }
 
+expr: expr INFERIEUR expr {
+    $$ =creer_n_operation('<', $1, $3);
+}
+
+expr: expr SUPERIEUR expr {
+    $$ =creer_n_operation('>', $1, $3);
+}
+
 expr: expr INFERIEUR_OU_EQUAL expr {
     $$ =creer_n_operation('i', $1, $3);
 }
