@@ -38,4 +38,6 @@ jobs:
         continue-on-error: true
       - run: sudo ./C/output/exemple4
         continue-on-error: true
+      - run: sudo ./C/output/exemple5
+        continue-on-error: true
 
