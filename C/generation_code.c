@@ -88,12 +88,11 @@ void nasm_instruction(n_instruction* n){
     char label_endif[10];
     sprintf(label_endif, "endif%d", fin_label_count);
 
-
-    nasm_commande("jmp", label_if, NULL, NULL, "Aller au si");
-    nasm_commande("jmp", label_else, NULL, NULL, "Aller au sinon");
+    nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon");
     sprintf(label_if, "if%d:", label_count);
     nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
     nasm_liste_instructions(n->u.condition.l_instructions);
+    nasm_commande("jmp", label_endif, NULL, NULL, "Aller au si");
 
     if(n->u.condition.l_instructions_2==NULL)
     {
