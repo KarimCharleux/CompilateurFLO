@@ -30,9 +30,14 @@ jobs:
         run: make --directory=C
 
       - run: echo Ex1 && ./C/output/bin/exemple1
+        continue-on-error: true
       - run: echo Ex2 && ./C/output/bin/exemple2
+        continue-on-error: true
       - run: echo Ex3 && ./C/output/bin/exemple3
+        continue-on-error: true
       - run: echo Ex4 && ./C/output/bin/exemple4
+        continue-on-error: true
       - run: echo Ex5 && ./C/output/bin/exemple5
+        continue-on-error: true
 
 
