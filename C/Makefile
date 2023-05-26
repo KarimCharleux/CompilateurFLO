@@ -5,6 +5,8 @@ assembleur_vers_exercutable: generation_code_nasm
 
 generation_code_nasm: main
 	mkdir -p output/nasm; 
+	mkdir -p output/object; 
+	mkdir -p output/bin; 
 	for a in $(INPUT); do echo "Generation code nasm: " $${a}; ./main -n input/$${a}.flo > output/nasm/$${a}.nasm; done;
 
 main: analyse_lexicale analyse_syntaxique
