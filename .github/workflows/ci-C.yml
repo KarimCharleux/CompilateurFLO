@@ -30,14 +30,6 @@ jobs:
       - name: build project
         run: make --directory=C
 
-      - run: sudo ./C/output/exemple1
-        continue-on-error: true
-      - run: sudo ./C/output/exemple2
-        continue-on-error: true
-      - run: sudo ./C/output/exemple3
-        continue-on-error: true
-      - run: sudo ./C/output/exemple4
-        continue-on-error: true
-      - run: sudo ./C/output/exemple5
+      - run: for file in *; do ./C/output/bin/$file" & done
         continue-on-error: true
 
