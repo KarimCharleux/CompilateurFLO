@@ -43,7 +43,7 @@ struct n_boucle
 };
 
 struct n_instruction{
-  enum { i_ecrire, i_lire, i_condition, i_boucle} type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
+  enum { i_ecrire, i_lire, i_condition, i_boucle, i_affectation} type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
   union{ 
     n_exp* exp; // pour ecrire(exp);
     n_condition condition; 
@@ -52,7 +52,7 @@ struct n_instruction{
 };
 
 struct n_exp{
-  enum { i_operation, i_entier} type_exp; // pour le moment une expression  peut-être une opération ou un entier
+  enum { i_operation, i_entier, i_boolean} type_exp; // pour le moment une expression  peut-être une opération ou un entier
   union{ 
     n_operation* operation;
     int valeur;
@@ -82,6 +82,8 @@ n_instruction* creer_n_ecrire(n_exp* exp);
 n_instruction* creer_n_lire();
 n_instruction* creer_n_max(n_exp* exp);
 n_exp* creer_n_entier(int valeur);
+n_exp* creer_n_boolean(int valeur);
+n_instruction* creer_n_affectation(n_exp* exp);
 n_exp* creer_n_operation(char type_operation, n_exp* exp1, n_exp* exp2);
 n_instruction* creer_n_condition(n_exp* expr, n_l_instructions* l_instructions, n_l_instructions* l_instructions_2);
 n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions);

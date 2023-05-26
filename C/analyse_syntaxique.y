@@ -63,6 +63,9 @@ n_programme* arbre_abstrait;
 %type <inst> ecrire
 %type <inst> lire
 %type <exp> expr
+%type <exp> facteur
+%type <exp> produit
+%type <exp> boolean
 
 %%
 
@@ -78,20 +81,20 @@ listeInstructions: instruction listeInstructions {
 $$ =creer_n_l_instructions($1 ,$2);
 } 
 
-instruction: ecrire {
+instruction: ecrire POINT_VIRGULE {
 	$$ =$1;
 }
 
-ecrire: ECRIRE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE POINT_VIRGULE {
+ecrire: ECRIRE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE {
 	
 	$$ =creer_n_ecrire($3);
 }
 
-instruction: lire {
+instruction: lire POINT_VIRGULE{
 	$$ =$1;
 }
 
-lire: LIRE PARENTHESE_OUVRANTE PARENTHESE_FERMANTE POINT_VIRGULE {
+lire: LIRE PARENTHESE_OUVRANTE PARENTHESE_FERMANTE {
 	$$ =creer_n_lire();
 }
 
@@ -110,19 +113,38 @@ instruction: TANTQUE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRA
     $$ = creer_n_boucle($3, $6);
 }
 
+instruction: IDENTIFIANT EQUAL expr POINT_VIRGULE{
+	creer_n_affectation($3);
+}
 
 
 
 
+facteur: PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE {
+    $$ =$2 ;
+}
+facteur: ENTIER{
+    $$ = creer_n_entier($1);
+}
 
+produit: produit FOIS facteur{
+    $$ =creer_n_operation('*', $1 , $3);
+}
+produit: produit DIVISER facteur{
+    $$ =creer_n_operation('/', $1 , $3);
+}
+produit: facteur{
+    $$ = $1;
+}
 
-expr: expr PLUS expr{
+expr: produit{
+    $$ = $1;
+}
+
+expr: expr PLUS produit{
 	$$ =creer_n_operation('+', $1, $3);
 }
 
-expr: expr FOIS expr{
-	$$ =creer_n_operation('*', $1 , $3);
-}
 
 expr: expr MOINS expr{
     $$ =creer_n_operation('-', $1 , $3);
@@ -130,18 +152,6 @@ expr: expr MOINS expr{
 
 expr: expr MODULO expr{
     $$ =creer_n_operation('%', $1 , $3);
-}
-
-expr: expr DIVISER expr POINT_VIRGULE{
-    $$ =creer_n_operation('/', $1 , $3);
-}
-
-expr: PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE  POINT_VIRGULE{
-	$$ =$2 ;
-}
-
-expr: ENTIER{
-	$$ = creer_n_entier($1);
 }
 
 expr: expr OU expr POINT_VIRGULE {
@@ -166,12 +176,21 @@ expr: expr INFERIEUR_OU_EQUAL expr {
 expr: expr SUPERIEUR_OU_EQUAL expr {
     $$ =creer_n_operation('s', $1, $3);
 }
-expr: expr EQUAL expr {
-    $$ =creer_n_operation('e', $1, $3);
+expr: expr EQUAL EQUAL expr {
+    $$ =creer_n_operation('e', $1, $4);
 }
 
 expr: NON expr POINT_VIRGULE {}
 
+boolean: VRAI {
+    $$ = creer_n_boolean(1);
+}
+boolean: FAUX {
+    $$ = creer_n_boolean(1);
+}
+boolean: ENTIER{
+    $$ = creer_n_boolean($1);
+}
 
 %%
 

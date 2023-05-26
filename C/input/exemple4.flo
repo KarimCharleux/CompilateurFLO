@@ -1,4 +1,6 @@
-tantque(1)
+x = 0
+tantque(x<5)
 {
-    ecrire(4);
+    ecrire(x);
+    x =x+1;
 };

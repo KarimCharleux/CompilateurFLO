@@ -134,6 +134,13 @@ n_instruction* creer_n_ecrire(n_exp* exp){
   return n;
 }
 
+n_instruction* creer_n_affectation(n_exp* exp){
+	n_instruction* n = malloc(sizeof(n_instruction));
+  n->type_instruction = i_affectation;
+  n->u.exp = exp;
+  return n;
+}
+
 n_instruction* creer_n_lire(){
   n_instruction* n = malloc(sizeof(n_instruction));
   n->type_instruction = i_lire;
@@ -145,6 +152,14 @@ n_exp* creer_n_entier(int valeur){
   n->type_exp = i_entier;
   n->u.valeur = valeur;
   return n;
+}
+n_exp* creer_n_boolean(int valeur)
+{
+	n_exp* n = malloc(sizeof(n_exp));
+	n->type_exp = i_boolean;
+	n->u.valeur = valeur;
+  	return n;
+
 }
 
 n_exp* creer_n_operation(char type_operation,n_exp* exp1,n_exp* exp2){
