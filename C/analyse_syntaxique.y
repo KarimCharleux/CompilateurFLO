@@ -98,17 +98,17 @@ lire: LIRE PARENTHESE_OUVRANTE PARENTHESE_FERMANTE {
 	$$ =creer_n_lire();
 }
 
-instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
 {
     $$ = creer_n_condition($3, $6, NULL);
 }
 
-instruction: SI PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
 {
     $$ = creer_n_condition($3, $6, $10);
 }
 
-instruction: TANTQUE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+instruction: TANTQUE PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
 {
     $$ = creer_n_boucle($3, $6);
 }
@@ -154,42 +154,39 @@ expr: expr MODULO expr{
     $$ =creer_n_operation('%', $1 , $3);
 }
 
-expr: expr OU expr POINT_VIRGULE {
+boolean: boolean OU boolean {
     $$ =creer_n_operation('|', $1 , $3);
 }
 
-expr: expr ET expr {
+boolean: boolean ET boolean {
     $$ =creer_n_operation('&', $1, $3);
 }
 
-expr: expr INFERIEUR expr {
+boolean: expr INFERIEUR expr {
     $$ =creer_n_operation('<', $1, $3);
 }
 
-expr: expr SUPERIEUR expr {
+boolean: expr SUPERIEUR expr {
     $$ =creer_n_operation('>', $1, $3);
 }
 
-expr: expr INFERIEUR_OU_EQUAL expr {
+boolean: expr INFERIEUR_OU_EQUAL expr {
     $$ =creer_n_operation('i', $1, $3);
 }
-expr: expr SUPERIEUR_OU_EQUAL expr {
+boolean: expr SUPERIEUR_OU_EQUAL expr {
     $$ =creer_n_operation('s', $1, $3);
 }
-expr: expr EQUAL EQUAL expr {
+boolean: expr EQUAL EQUAL expr {
     $$ =creer_n_operation('e', $1, $4);
 }
 
-expr: NON expr POINT_VIRGULE {}
+boolean: NON boolean {}
 
 boolean: VRAI {
     $$ = creer_n_boolean(1);
 }
 boolean: FAUX {
-    $$ = creer_n_boolean(1);
-}
-boolean: ENTIER{
-    $$ = creer_n_boolean($1);
+    $$ = creer_n_boolean(0);
 }
 
 %%

@@ -11,7 +11,6 @@
 %option nounput
 %option noinput
 
-
 entier               ([1-9][0-9]*|0)
 chiffre              [0-9]
 lettre               [a-zA-Z]
