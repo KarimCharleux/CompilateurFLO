@@ -72,15 +72,6 @@ void nasm_instruction(n_instruction* n){
   if(n->type_instruction == i_lire){
 	}
   if(n->type_instruction == i_condition){
-    nasm_exp(n->u.condition.expr);
-    //nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
-    // test if >1
-    //nasm_commande("cmp", "eax", "1", NULL, "compare");
-    //nasm_commande("setg", "al", NULL, NULL, "met 1 dans al si eax > ebx");
-    //nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
-
-    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
-    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
     // on crée les labels pour le si, le else et la fin
     char label_if[10];
     sprintf(label_if, "if%d", if_label_count);
@@ -89,25 +80,32 @@ void nasm_instruction(n_instruction* n){
     char label_endif[10];
     sprintf(label_endif, "endif%d", fin_label_count);
 
-    nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon");
+    nasm_exp(n->u.condition.expr); //Evaluation expression
+    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); // Recuperation du resultat
+    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); // Le boolean est il a 1 ?
+
+    if(n->u.condition.l_instructions_2!=NULL)
+    {
+      nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon"); // Si non, saut a l etiquette du else
+    }
+    else
+    {
+      nasm_commande("jnz", label_endif, NULL, NULL, "Aller a la fin");
+    }
     sprintf(label_if, "if%d:", label_count);
     nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
     nasm_liste_instructions(n->u.condition.l_instructions);
     nasm_commande("jmp", label_endif, NULL, NULL, "Aller au si");
 
-    if(n->u.condition.l_instructions_2==NULL)
-    {
-      sprintf(label_endif, "endif%d:", fin_label_count);
-      nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
-    }
-    else
+    if(n->u.condition.l_instructions_2!=NULL)
     {
       sprintf(label_else, "else%d:", label_count);
       nasm_commande(label_else, NULL, NULL, NULL, "Aller dans le sinon");
       nasm_liste_instructions(n->u.condition.l_instructions_2);
-      sprintf(label_endif, "endif%d:", fin_label_count);
-      nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
     }
+    sprintf(label_endif, "endif%d:", fin_label_count);
+    nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
+
 	}
   if(n->type_instruction == i_boucle)
   {
