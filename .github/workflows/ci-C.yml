@@ -31,5 +31,4 @@ jobs:
         run: make --directory=C
 
       - run: for file in ./C/output/bin/*; do "$file" & done
-        continue-on-error: true
 
