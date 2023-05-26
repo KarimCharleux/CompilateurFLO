@@ -75,10 +75,11 @@ void nasm_instruction(n_instruction* n){
     nasm_exp(n->u.condition.expr);
     //nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
     // test if >1
-    nasm_commande("cmp", "eax", "1", NULL, "compare");
-    nasm_commande("setg", "al", NULL, NULL, "met 1 dans al si eax > ebx");
-    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+    //nasm_commande("cmp", "eax", "1", NULL, "compare");
+    //nasm_commande("setg", "al", NULL, NULL, "met 1 dans al si eax > ebx");
+    //nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
 
+    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
     // on crée les labels pour le si, le else et la fin
     char label_if[10];
@@ -150,7 +151,8 @@ void nasm_operation(n_operation* n){
   else if(n->type_operation == '<'){
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setl", "al", NULL, NULL, "set 1 dans al si eax < ebx");
-    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+    nasm_commande("movzx", "eax", "al", NULL, "move dans register que l on peut empiler");
+    nasm_commande("push", "eax" , NULL, NULL, "empile le résultat");  
   }
   else if(n->type_operation == '>'){
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
@@ -178,5 +180,4 @@ void nasm_operation(n_operation* n){
     nasm_commande("setge", "al", NULL, NULL, "met 1 dans al si eax >= ebx");
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
-  nasm_commande("push",  "eax" , NULL, NULL, "empile le résultat");  
 }
