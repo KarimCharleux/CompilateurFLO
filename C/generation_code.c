@@ -135,13 +135,13 @@ void nasm_operation(n_operation* n){
       nasm_commande("add", "eax", "ebx", NULL, "operation +");
   }
   else if(n->type_operation == '*'){
-    nasm_commande("imul", "ebx", NULL, NULL, "operation *");
+    nasm_commande("imul", "eax", "ebx", NULL, "operation *");
   }
   else if(n->type_operation == '-'){
-    nasm_commande("sub", "ebx", NULL, NULL, "operation -");
+    nasm_commande("sub", "eax", "ebx", NULL, "operation -");
   }
   else if(n->type_operation == '/'){
-    nasm_commande("idiv", "ebx", NULL, NULL, "operation /");
+    nasm_commande("idiv", "eax", "ebx", NULL, "operation /");
   }
   else if(n->type_operation == '%'){
     nasm_commande("mov", "edx", "0", NULL, "");
@@ -152,12 +152,11 @@ void nasm_operation(n_operation* n){
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setl", "al", NULL, NULL, "set 1 dans al si eax < ebx");
     nasm_commande("movzx", "eax", "al", NULL, "move dans register que l on peut empiler");
-    nasm_commande("push", "eax" , NULL, NULL, "empile le résultat");  
   }
   else if(n->type_operation == '>'){
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
-    nasm_commande("setg", "al", NULL, NULL, "met 1 dans al si eax > ebx");
-    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+    nasm_commande("setg", "al", NULL, NULL, "set 1 dans al si eax > ebx");
+    nasm_commande("movzx", "eax", "al", NULL, "move dans register que l on peut empiler");
   }
   else if(n->type_operation == '|'){
      nasm_commande("or", "eax", "ebx", NULL, "opération |");
@@ -180,4 +179,5 @@ void nasm_operation(n_operation* n){
     nasm_commande("setge", "al", NULL, NULL, "met 1 dans al si eax >= ebx");
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
+  nasm_commande("push", "eax" , NULL, NULL, "empile le résultat");  
 }
