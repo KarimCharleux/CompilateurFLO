@@ -1,1 +1,3 @@
 ecrire(42);
+ecrire(Vrai);
+ecrire(Faux);

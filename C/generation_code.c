@@ -131,10 +131,13 @@ void nasm_instruction(n_instruction* n){
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
 		nasm_operation(n->u.operation);
-	} else if (n->type_exp == i_entier){
+	} else if (n->type_exp == i_entier || n->type_exp == i_boolean){
 	      char buffer[10];
 	      sprintf(buffer, "%d", n->u.valeur);
       	nasm_commande("push", buffer, NULL, NULL, NULL) ;
+	}
+  else if (n->type_exp == i_variable){
+	      //WORKING ON IT
 	}
 }
 
