@@ -12,7 +12,7 @@ int if_label_count= 0;
 int else_label_count= 0;
 int fin_label_count= 0;
 int label_count= 0;
-SymbolTable* symbolTableList[10]={};
+SymbolTable* symbolTableList[10];
 
 // -----------------------------------------------------------------------------------------------------------------
 //  _____           _     
@@ -63,8 +63,8 @@ void nasm_prog(n_programme *n) {
 		}
 		fonctions = fonctions->fonctions;
     ++i;
-	} while(n != NULL );
-
+	} while(fonctions != NULL );
+  
   printifm("%%include\t'%s'\n","io.asm");
   printifm("%s","\nsection\t.bss\n");
   printifm("%s", "sinput:\tresb\t255\t;reserve a 255 byte space in memory for the users input string\n");

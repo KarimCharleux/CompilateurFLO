@@ -1,4 +1,4 @@
-mian()
+entier main()
 {
    tantque(Vrai)
    {

@@ -1,4 +1,4 @@
-main()
+entier main()
 {
     si (2<4)
     {

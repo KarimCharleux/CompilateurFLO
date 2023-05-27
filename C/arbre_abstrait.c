@@ -81,7 +81,6 @@ void afficher_n_l_fonctions(n_l_fonctions* fonctions ,int indent){
 }
 void afficher_n_fonction(n_fonction* fonction,int indent){
 	afficher("<fonction>",indent+1);
-	afficher("%d", fonction->type);
 	afficher(fonction->identifiant, indent+1);
 	afficher_n_l_instructions(fonction->l_instructions,indent+2);
 	afficher("</fonction>",indent+1);
