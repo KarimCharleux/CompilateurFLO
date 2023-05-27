@@ -1,4 +1,6 @@
-main()
+main();
+;
+entier main()
 {
     ecrire(2*(3-3)*4*6 + 5);
 };

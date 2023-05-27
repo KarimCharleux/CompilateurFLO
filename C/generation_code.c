@@ -12,6 +12,7 @@ int if_label_count= 0;
 int else_label_count= 0;
 int fin_label_count= 0;
 int label_count= 0;
+int function_count=0;
 SymbolTable* symbolTableList[10];
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -90,6 +91,7 @@ void nasm_liste_fonctions(n_l_fonctions *n) {
 }
 void nasm_fonction(n_fonction* n)
 {
+  ++function_count;
   char label_fonction[15];
   sprintf(label_fonction, "_%s:\n", n->identifiant);
   printifm("%s",label_fonction);
@@ -192,9 +194,17 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
   }
   if(n->type_instruction == i_retour)
-  {
-    nasm_exp(n->u.exp);
-    nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
+  { 
+    if(function_count >0)
+    {
+      nasm_exp(n->u.exp);
+      nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
+      --function_count; 
+    }
+    else
+    {
+      exit(42);
+    }
   }
 }
 void nasm_exp(n_exp* n){
