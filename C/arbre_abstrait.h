@@ -64,6 +64,7 @@ struct n_l_fonctions
 // PRINCIPALES -----------------------------------------------------------------------------------------------------------------
 struct n_programme{ 
   n_l_fonctions* fonctions;
+  n_l_instructions* instructions;
 };
 struct n_l_instructions{
 	n_instruction* instruction;
@@ -126,7 +127,7 @@ void afficher_n_variable(n_variable variable, int indent);
 */
 
 // DEFAULT -----------------------------------------------------------------------------------------------------------------
-n_programme* creer_n_programme(n_l_fonctions* fonctions);
+n_programme* creer_n_programme(n_l_fonctions* fonctions, n_l_instructions* instructions);
 n_l_instructions* creer_n_l_instructions(n_instruction* instruction ,n_l_instructions* instructions);
 n_l_fonctions* creer_n_l_fonctions(n_fonction* fonction ,n_l_fonctions* fonctions);
 n_fonction* creer_n_fonction(int type, char* identifiant , n_l_instructions* l_instructions);

@@ -87,8 +87,11 @@ n_programme* arbre_abstrait;
 //                                   
 
 
-prog: listeFonctions {
-arbre_abstrait =creer_n_programme($1);
+prog: listeFonctions listeInstructions {
+arbre_abstrait =creer_n_programme($1 , $2);
+} 
+prog: listeInstructions POINT_VIRGULE listeFonctions{
+arbre_abstrait =creer_n_programme($3, $1);
 } 
 listeInstructions: instruction {
 $$ =creer_n_l_instructions($1 ,NULL);
@@ -168,6 +171,9 @@ instruction: TYPE_BOOLEAN IDENTIFIANT EQUAL expr POINT_VIRGULE {
 instruction: TYPE_ENTIER IDENTIFIANT EQUAL expr POINT_VIRGULE {
 	$$ = creer_n_variable(1, $2, $4);
 }
+
+// APPEL RETOUR -----------------------------------------------------------------------------------------------------------------
+
 instruction: RETOURNER expr POINT_VIRGULE{
     $$ = creer_n_retour($2);
 }

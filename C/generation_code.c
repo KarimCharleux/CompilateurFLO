@@ -70,9 +70,12 @@ void nasm_prog(n_programme *n) {
   printifm("%s", "sinput:\tresb\t255\t;reserve a 255 byte space in memory for the users input string\n");
   printifm("%s","\nsection\t.text\n");
   printifm("%s","global _start\n");
-  printifm("%s","_start:\n");
 
   nasm_liste_fonctions(n->fonctions);
+
+  printifm("%s","_start:\n");
+
+  nasm_liste_instructions(n->instructions);
 
   nasm_commande("mov", "eax", "0" , NULL, "1 est le code de SYS_EXIT");
   nasm_commande("int", "0x80", NULL, NULL, "exit");
@@ -88,8 +91,8 @@ void nasm_liste_fonctions(n_l_fonctions *n) {
 void nasm_fonction(n_fonction* n)
 {
   char label_fonction[15];
-  sprintf(label_fonction, "_%s", n->identifiant);
-  nasm_commande(label_fonction, NULL, NULL, NULL, "Entrer dans le si");
+  sprintf(label_fonction, "_%s:\n", n->identifiant);
+  printifm("%s",label_fonction);
   nasm_liste_instructions(n->l_instructions);
 }
 void nasm_liste_instructions(n_l_instructions *n) {
@@ -184,13 +187,13 @@ void nasm_instruction(n_instruction* n){
   {
     char label_appel[15];
     sprintf(label_appel, "_%s", n->u.identifiant);
-    nasm_commande("call", label_appel, NULL, NULL, "Recupere leresultqt dans eax");
+    nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
   }
   if(n->type_instruction == i_retour)
   {
     nasm_exp(n->u.exp);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
-    nasm_commande("ret", NULL, NULL, NULL, "Recupere leresultqt dans eax");
+    nasm_commande("ret", NULL, NULL, NULL, "Return");
   }
 }
 void nasm_exp(n_exp* n){
