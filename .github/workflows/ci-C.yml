@@ -40,5 +40,7 @@ jobs:
         continue-on-error: true
       - run: echo TantQue && ./C/output/bin/tantque
         continue-on-error: true
+      - run: echo TantQue && ./C/output/bin/fonction
+        continue-on-error: true
 
 
