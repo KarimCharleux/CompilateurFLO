@@ -1,4 +1,4 @@
-INPUT = exemple1 exemple2 exemple3 exemple4 exemple5
+INPUT = exemple1 exemple2 exemple3 exemple4 exemple5 exemple6
 
 assembleur_vers_exercutable: generation_code_nasm
 	for a in $(INPUT); do echo "Assemblage: " $${a}; nasm -g output/nasm/$${a}.nasm -f elf -o output/object/$${a}.o; ld -m elf_i386   -s -o output/bin/$${a} output/object/$${a}.o; done;

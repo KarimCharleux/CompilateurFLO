@@ -50,7 +50,7 @@ void nasm_prog(n_programme *n) {
   printifm("%s","_start:\n");
   nasm_liste_instructions(n->instructions);
   //pour quitter le programme
-  nasm_commande("mov", "eax", "1" , NULL, "1 est le code de SYS_EXIT");
+  nasm_commande("mov", "eax", "0" , NULL, "1 est le code de SYS_EXIT");
   nasm_commande("int", "0x80", NULL, NULL, "exit");
 }
 
@@ -70,6 +70,10 @@ void nasm_instruction(n_instruction* n){
 		nasm_commande("call", "iprintLF", NULL, NULL, NULL); //on envoie la valeur d'eax sur la sortie standard
 	}
   if(n->type_instruction == i_lire){
+    nasm_commande("mov", "eax", "sinput", NULL, "charge l’adresse sinput");
+    nasm_commande("call", "readline", NULL, NULL, "appelle readline de io.asm");
+    nasm_commande("call", "atoi", NULL, NULL, "appelle atoi de io.asm");
+    nasm_commande("push", "eax", NULL, NULL, "empile eax");
 	}
   if(n->type_instruction == i_condition){
     // on crée les labels pour le si, le else et la fin
@@ -92,6 +96,7 @@ void nasm_instruction(n_instruction* n){
     {
       nasm_commande("jnz", label_endif, NULL, NULL, "Aller a la fin");
     }
+    
     sprintf(label_if, "if%d:", label_count);
     nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
     nasm_liste_instructions(n->u.condition.l_instructions);
@@ -111,7 +116,16 @@ void nasm_instruction(n_instruction* n){
   {
 
 	}
+  if(n->type_instruction == i_affectation)
+  {
 
+  }
+  if(n->type_instruction == i_declaration)
+  {
+    nasm_exp(n->u.variable.expr);
+    nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
+
+  }
 }
 
 void nasm_exp(n_exp* n){

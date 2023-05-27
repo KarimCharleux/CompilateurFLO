@@ -82,7 +82,9 @@ extern int yydebug;
     VIRGULE = 283,                 /* VIRGULE  */
     ACCOLADE_OUVRANTE = 284,       /* ACCOLADE_OUVRANTE  */
     ACCOLADE_FERMANTE = 285,       /* ACCOLADE_FERMANTE  */
-    ET = 286                       /* ET  */
+    ET = 286,                      /* ET  */
+    TYPE_BOOLEAN = 287,            /* TYPE_BOOLEAN  */
+    TYPE_ENTIER = 288              /* TYPE_ENTIER  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -94,12 +96,13 @@ union YYSTYPE
 #line 14 "analyse_syntaxique.y"
 
     int entier;
+    char* identifiant;
     n_programme* prog;
     n_l_instructions* l_inst;
     n_instruction* inst;
     n_exp* exp;
 
-#line 103 "symboles.h"
+#line 106 "symboles.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -34,6 +34,13 @@ void afficher_entier(int valeur,int indent){
 	}
 	printf("[Entier:%d]\n",valeur);
 }
+void afficher_boolean(int valeur,int indent){
+	for(int i = 0; i < indent; i++){
+	printf(" "); 
+	
+	}
+	printf("[Boolean:%d]\n",valeur);
+}
 
 
 
@@ -65,6 +72,9 @@ void afficher_n_instruction(n_instruction* instruction ,int indent){
 		afficher_n_exp(instruction->u.exp,indent+1);
 		afficher("</ecrire>",indent);
 	}
+	if(instruction->type_instruction == i_lire){
+		afficher("<lire>",indent);
+	}
 	if(instruction->type_instruction == i_condition){
 		afficher_n_condition(instruction->u.condition,indent+1);
 	}
@@ -72,22 +82,46 @@ void afficher_n_instruction(n_instruction* instruction ,int indent){
 	{
 		afficher_n_boucle(instruction->u.boucle, indent+1);
 	}
+	if (instruction->type_instruction == i_declaration || instruction->type_instruction == i_affectation)
+	{
+		afficher_n_variable(instruction->u.variable, ++indent);
+	}
 }
 
+void afficher_n_variable(n_variable variable, int indent)
+{
+	if(variable.expr != NULL)
+	{
+		afficher("<variable>", indent);
+		afficher(variable.identifiant , indent+1);
+		afficher_n_exp(variable.expr, indent+1);
+		afficher("<variable>" , indent);
+	}
+	else
+	{
+		afficher("<variable>" , indent);
+		afficher(variable.identifiant , indent+1);
+		afficher("</variable>" , indent);
+	}
+}
 
 void afficher_n_exp(n_exp* exp ,int indent){
 	if (exp->type_exp == i_operation){
 		afficher_n_operation(exp->u.operation,indent);
 	} else if (exp->type_exp == i_entier){
 		afficher_entier(exp->u.valeur,indent);
+	} else if (exp->type_exp == i_boolean){
+		afficher_boolean(exp->u.valeur,indent);
+	} else if (exp->type_exp == i_variable){
+		afficher(exp->u.identifiant,indent);
 	}
 }
 
 
 void afficher_n_operation(n_operation* operation ,int indent){
 	afficher("<operation>",indent);
-	afficher_caractere(operation->type_operation,indent+1);
 	afficher_n_exp(operation->exp1,indent+1);
+	afficher_caractere(operation->type_operation,indent+1);
 	afficher_n_exp(operation->exp2,indent+1);
 	afficher("</operation>",indent);
 }
@@ -130,13 +164,6 @@ n_l_instructions* creer_n_l_instructions(n_instruction* instruction ,n_l_instruc
 n_instruction* creer_n_ecrire(n_exp* exp){
   n_instruction* n = malloc(sizeof(n_instruction));
   n->type_instruction = i_ecrire;
-  n->u.exp = exp;
-  return n;
-}
-
-n_instruction* creer_n_affectation(n_exp* exp){
-	n_instruction* n = malloc(sizeof(n_instruction));
-  n->type_instruction = i_affectation;
   n->u.exp = exp;
   return n;
 }
@@ -189,6 +216,34 @@ n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions)
 	n->type_instruction = i_boucle;
 	n->u.boucle.expr = expr;
 	n->u.boucle.l_instructions = l_instructions;
+
+	return n;
+}
+
+
+n_instruction* creer_n_affectation(char* identifiant, n_exp* expr)
+{
+	n_instruction* n= malloc(sizeof(n_instruction));
+	n->type_instruction = i_affectation;
+	n->u.variable.identifiant = identifiant;
+	n->u.variable.expr = expr;
+
+	return n;
+}
+n_instruction* creer_n_variable(int type, char* identifiant, n_exp* expr)
+{
+	n_instruction* n= malloc(sizeof(n_instruction));
+	n->type_instruction = i_declaration;	
+	n->u.variable.identifiant = identifiant;
+	n->u.variable.expr = expr;
+
+	return n;
+}
+n_exp* get_n_variable(char* identifiant)
+{
+	n_exp* n = malloc(sizeof(n_exp));
+	n->type_exp = i_variable;
+	n->u.identifiant = identifiant;
 
 	return n;
 }

@@ -48,9 +48,11 @@ espace               [ \t\r\n]
 "non"                { return NON;                 }
 "lire"               { return LIRE;                }
 "max"                { return MAX;                 }
+"boolean"            { return TYPE_BOOLEAN;        }
+"entier"             { return TYPE_ENTIER;         }
 "%"                  { return MODULO;              }
 {entier}             { yylval.entier=atoi(yytext); return ENTIER;}
-{lettre}{alphanum}*  { return IDENTIFIANT;         }
+{lettre}{alphanum}*  { yylval.identifiant=strdup(yytext);  return IDENTIFIANT;}
 
 
 .                    {                                /* Erreur, autre caractètre quelconque */
