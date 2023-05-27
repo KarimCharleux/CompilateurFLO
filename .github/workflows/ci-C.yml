@@ -29,15 +29,15 @@ jobs:
       - name: build project
         run: make --directory=C
 
-      - run: echo Ex1 && ./C/output/bin/exemple1
+      - run: echo Calculation && ./C/output/bin/calculation
         continue-on-error: true
-      - run: echo Ex2 && ./C/output/bin/exemple2
+      - run: echo Ecrire && ./C/output/bin/ecrire
         continue-on-error: true
-      - run: echo Ex3 && ./C/output/bin/exemple3
+      - run: echo Lire && ./C/output/bin/lire
         continue-on-error: true
-      - run: echo Ex4 && ./C/output/bin/exemple4
+      - run: echo Si && ./C/output/bin/si
         continue-on-error: true
-      - run: echo Ex5 && ./C/output/bin/exemple5
+      - run: echo TantQue && ./C/output/bin/tantque
         continue-on-error: true
 
 

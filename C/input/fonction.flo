@@ -1,0 +1,5 @@
+maFonction()
+{
+    ecrire(5);
+    ecrire(4+6);
+};
