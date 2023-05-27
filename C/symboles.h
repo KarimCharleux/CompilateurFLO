@@ -84,7 +84,8 @@ extern int yydebug;
     ACCOLADE_FERMANTE = 285,       /* ACCOLADE_FERMANTE  */
     ET = 286,                      /* ET  */
     TYPE_BOOLEAN = 287,            /* TYPE_BOOLEAN  */
-    TYPE_ENTIER = 288              /* TYPE_ENTIER  */
+    TYPE_ENTIER = 288,             /* TYPE_ENTIER  */
+    RETOURNER = 289                /* RETOURNER  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -104,7 +105,7 @@ union YYSTYPE
     n_l_fonctions* l_fonctions;
     n_exp* exp;
 
-#line 108 "symboles.h"
+#line 109 "symboles.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

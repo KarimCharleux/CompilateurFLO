@@ -47,6 +47,7 @@ espace               [ \t\r\n]
 "ou"                 { return OU;                  }
 "non"                { return NON;                 }
 "lire"               { return LIRE;                }
+"retourner"          { return RETOURNER;           }
 "max"                { return MAX;                 }
 "boolean"            { return TYPE_BOOLEAN;        }
 "entier"             { return TYPE_ENTIER;         }

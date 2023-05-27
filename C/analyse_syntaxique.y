@@ -59,6 +59,7 @@ n_programme* arbre_abstrait;
 %token ET
 %token TYPE_BOOLEAN
 %token TYPE_ENTIER
+%token RETOURNER
 
 //completer
 
@@ -112,8 +113,11 @@ $$ =creer_n_l_fonctions($1 ,$2);
 
 // FONCTIONS -----------------------------------------------------------------------------------------------------------------
 
-fonction: IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction($1 , $5);
+fonction: TYPE_BOOLEAN IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
+    $$ = creer_n_fonction(0 ,$2 , $6);
+}
+fonction: TYPE_ENTIER IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
+    $$ = creer_n_fonction(1 ,$2 , $6);
 }
 
 // LIRE ECRIRE -----------------------------------------------------------------------------------------------------------------
@@ -163,6 +167,12 @@ instruction: TYPE_BOOLEAN IDENTIFIANT EQUAL expr POINT_VIRGULE {
 }
 instruction: TYPE_ENTIER IDENTIFIANT EQUAL expr POINT_VIRGULE {
 	$$ = creer_n_variable(1, $2, $4);
+}
+instruction: RETOURNER expr POINT_VIRGULE{
+    $$ = creer_n_retour($2);
+}
+instruction: IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE POINT_VIRGULE{
+    $$ = creer_n_appel($1);
 }
 
 

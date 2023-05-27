@@ -81,6 +81,7 @@ void afficher_n_l_fonctions(n_l_fonctions* fonctions ,int indent){
 }
 void afficher_n_fonction(n_fonction* fonction,int indent){
 	afficher("<fonction>",indent+1);
+	afficher("%d", fonction->type);
 	afficher(fonction->identifiant, indent+1);
 	afficher_n_l_instructions(fonction->l_instructions,indent+2);
 	afficher("</fonction>",indent+1);
@@ -223,9 +224,10 @@ n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions)
 
 	return n;
 }
-n_fonction* creer_n_fonction(char* identifiant , n_l_instructions* l_instructions)
+n_fonction* creer_n_fonction(int type, char* identifiant , n_l_instructions* l_instructions)
 {
 	n_fonction* n= malloc(sizeof(n_instruction));
+	n->type = type;
 	n->identifiant = identifiant;
 	n->l_instructions = l_instructions;
 
@@ -246,6 +248,22 @@ n_instruction* creer_n_variable(int type, char* identifiant, n_exp* expr)
 	n->type_instruction = i_declaration;	
 	n->u.variable.identifiant = identifiant;
 	n->u.variable.expr = expr;
+
+	return n;
+}
+n_instruction* creer_n_appel(char* identifiant)
+{
+	n_instruction* n= malloc(sizeof(n_instruction));
+	n->type_instruction = i_appel;
+	n->u.identifiant = identifiant;
+
+	return n;
+}
+n_instruction* creer_n_retour(n_exp* expr)
+{
+	n_instruction* n= malloc(sizeof(n_instruction));
+	n->type_instruction = i_retour;
+	n->u.exp = expr;
 
 	return n;
 }

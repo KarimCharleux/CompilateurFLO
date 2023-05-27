@@ -12,6 +12,7 @@ int if_label_count= 0;
 int else_label_count= 0;
 int fin_label_count= 0;
 int label_count= 0;
+SymbolTable* symbolTableList[10]={};
 
 // -----------------------------------------------------------------------------------------------------------------
 //  _____           _     
@@ -51,7 +52,19 @@ void nasm_commande(char *opcode, char *op1, char *op2, char *op3, char *comment)
 
 // DEFAULT -----------------------------------------------------------------------------------------------------------------
 void nasm_prog(n_programme *n) {
-  
+  int i=0;
+  n_l_fonctions* fonctions = n->fonctions;
+  do {
+		if (fonctions->fonction != NULL){
+      SymbolTable* symbolTable = malloc(sizeof(SymbolTable));
+      symbolTable->function_name = fonctions->fonction->identifiant ;
+      symbolTable->type = fonctions->fonction->type;
+      symbolTableList[i] = symbolTable;
+		}
+		fonctions = fonctions->fonctions;
+    ++i;
+	} while(n != NULL );
+
   printifm("%%include\t'%s'\n","io.asm");
   printifm("%s","\nsection\t.bss\n");
   printifm("%s", "sinput:\tresb\t255\t;reserve a 255 byte space in memory for the users input string\n");
@@ -74,6 +87,9 @@ void nasm_liste_fonctions(n_l_fonctions *n) {
 }
 void nasm_fonction(n_fonction* n)
 {
+  char label_fonction[15];
+  sprintf(label_fonction, "_%s", n->identifiant);
+  nasm_commande(label_fonction, NULL, NULL, NULL, "Entrer dans le si");
   nasm_liste_instructions(n->l_instructions);
 }
 void nasm_liste_instructions(n_l_instructions *n) {
@@ -164,11 +180,18 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
 
   }
-  if (n->type_instruction == i_fonction)
+  if(n->type_instruction == i_appel)
   {
-    
+    char label_appel[15];
+    sprintf(label_appel, "_%s", n->u.identifiant);
+    nasm_commande("call", label_appel, NULL, NULL, "Recupere leresultqt dans eax");
   }
-  
+  if(n->type_instruction == i_retour)
+  {
+    nasm_exp(n->u.exp);
+    nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
+    nasm_commande("ret", NULL, NULL, NULL, "Recupere leresultqt dans eax");
+  }
 }
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){

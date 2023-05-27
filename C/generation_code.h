@@ -1,13 +1,11 @@
 #ifndef __GENERATION_CODE__
 #define __GENERATION_CODE__
 
-enum Type {boolean = 0, entier = 1}; 
-
 typedef struct
 {
-  enum Type l_instructions;
-  char* function_name[];
-} symbolTable;
+  enum Type type;
+  char* function_name;
+} SymbolTable;
 
 void nasm_prog(n_programme *n);
 void nasm_liste_fonctions(n_l_fonctions *n);
