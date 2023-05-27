@@ -65,13 +65,24 @@ void afficher_n_variable(n_variable variable, int indent)
 // DEFAULT -----------------------------------------------------------------------------------------------------------------
 void afficher_n_programme(n_programme* prog,int indent){
 	afficher("<programme>",indent);
-	afficher_n_l_instructions(prog->instructions,indent+1);
+	afficher_n_l_fonctions(prog->fonctions,indent+1);
 	afficher("</programme>",indent);
 }
-void afficher_n_fonction(n_fonction fonction,int indent){
+void afficher_n_l_fonctions(n_l_fonctions* fonctions ,int indent){
+	afficher("<liste_instuctions>",indent);
+	
+	do {
+		if (fonctions->fonction != NULL){
+			afficher_n_fonction(fonctions->fonction,indent+1);
+		}
+		fonctions = fonctions->fonctions;
+	} while(fonctions != NULL );
+	afficher("</liste_instructions>",indent);
+}
+void afficher_n_fonction(n_fonction* fonction,int indent){
 	afficher("<fonction>",indent+1);
-	afficher(fonction.identifiant, indent+1);
-	afficher_n_l_instructions(fonction.l_instructions,indent+2);
+	afficher(fonction->identifiant, indent+1);
+	afficher_n_l_instructions(fonction->l_instructions,indent+2);
 	afficher("</fonction>",indent+1);
 }
 void afficher_n_l_instructions(n_l_instructions* instructions ,int indent){
@@ -104,10 +115,6 @@ void afficher_n_instruction(n_instruction* instruction ,int indent){
 	if (instruction->type_instruction == i_declaration || instruction->type_instruction == i_affectation)
 	{
 		afficher_n_variable(instruction->u.variable, indent+1);
-	}
-	if (instruction->type_instruction == i_fonction)
-	{
-		afficher_n_fonction(instruction->u.fonction, indent+1);
 	}	
 }
 void afficher_n_exp(n_exp* exp ,int indent){
@@ -164,16 +171,25 @@ void afficher_n_boucle(n_boucle i_boucle, int indent)
 */
 
 // DEFAULT -----------------------------------------------------------------------------------------------------------------
-n_programme* creer_n_programme(n_l_instructions* instructions){
-  n_programme* n = malloc(sizeof(n_programme));
-  n->instructions = instructions;
-  return n;
+n_programme* creer_n_programme(n_l_fonctions* fonctions){
+  	n_programme* n = malloc(sizeof(n_programme));
+  	n->fonctions = fonctions;
+  
+  	return n;
 }
 n_l_instructions* creer_n_l_instructions(n_instruction* instruction ,n_l_instructions* instructions){
-  n_l_instructions* n = malloc(sizeof(n_l_instructions));
-  n->instruction = instruction;
-  n->instructions = instructions;
-  return n;
+  	n_l_instructions* n = malloc(sizeof(n_l_instructions));
+  	n->instruction = instruction;
+  	n->instructions = instructions;
+  	
+	return n;
+}
+n_l_fonctions* creer_n_l_fonctions(n_fonction* fonction ,n_l_fonctions* fonctions){
+	n_l_fonctions* n = malloc(sizeof(n_l_fonctions));
+	n->fonction = fonction;
+	n->fonctions = fonctions;
+
+	return n;
 }
 
 
@@ -207,12 +223,11 @@ n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions)
 
 	return n;
 }
-n_instruction* creer_n_fonction(char* identifiant , n_l_instructions* l_instructions)
+n_fonction* creer_n_fonction(char* identifiant , n_l_instructions* l_instructions)
 {
-	n_instruction* n= malloc(sizeof(n_instruction));
-	n->type_instruction = i_fonction;
-	n->u.fonction.identifiant = identifiant;
-	n->u.fonction.l_instructions = l_instructions;
+	n_fonction* n= malloc(sizeof(n_instruction));
+	n->identifiant = identifiant;
+	n->l_instructions = l_instructions;
 
 	return n;
 }

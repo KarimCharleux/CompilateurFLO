@@ -100,9 +100,11 @@ union YYSTYPE
     n_programme* prog;
     n_l_instructions* l_inst;
     n_instruction* inst;
+    n_fonction* fonction;
+    n_l_fonctions* l_fonctions;
     n_exp* exp;
 
-#line 106 "symboles.h"
+#line 108 "symboles.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

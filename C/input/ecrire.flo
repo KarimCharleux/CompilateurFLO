@@ -1,3 +1,7 @@
-ecrire(42);
-ecrire(Vrai);
-ecrire(Faux);
+main()
+{
+    ecrire(42);
+    ecrire(Vrai);
+    ecrire(Faux);
+};
+

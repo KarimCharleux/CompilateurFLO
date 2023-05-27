@@ -13,18 +13,20 @@ int else_label_count= 0;
 int fin_label_count= 0;
 int label_count= 0;
 
-/* fonction locale, permet d'afficher un commentaire */
+// -----------------------------------------------------------------------------------------------------------------
+//  _____           _     
+// |_   _|__   ___ | |___ 
+//   | |/ _ \ / _ \| / __|
+//   | | (_) | (_) | \__ \
+//   |_|\___/ \___/|_|___/                        
+//  
+
 void nasm_comment(char *comment) {
   if(comment != NULL) {
     printifm("\t\t ; %s", comment);//le point virgule indique le début d'un commentaire en nasm. Les tabulations sont là pour faire jolie.
   }
   printifm("%s","\n");
 }
-
-/*
-Affiche une commande nasm sur une ligne
-Par convention, les derniers opérandes sont nuls si l'opération a moins de 3 arguments.
-*/
 void nasm_commande(char *opcode, char *op1, char *op2, char *op3, char *comment) {
   printifm("\t%s", opcode);
   if(op1 != NULL) {
@@ -39,7 +41,15 @@ void nasm_commande(char *opcode, char *op1, char *op2, char *op3, char *comment)
   nasm_comment(comment);
 }
 
+// -----------------------------------------------------------------------------------------------------------------
+//  ____        __             _ _   
+// |  _ \  ___ / _| __ _ _   _| | |_ 
+// | | | |/ _ \ |_ / _` | | | | | __|
+// | |_| |  __/  _| (_| | |_| | | |_ 
+// |____/ \___|_|  \__,_|\__,_|_|\__|
+//  
 
+// DEFAULT -----------------------------------------------------------------------------------------------------------------
 void nasm_prog(n_programme *n) {
   
   printifm("%%include\t'%s'\n","io.asm");
@@ -48,12 +58,24 @@ void nasm_prog(n_programme *n) {
   printifm("%s","\nsection\t.text\n");
   printifm("%s","global _start\n");
   printifm("%s","_start:\n");
-  nasm_liste_instructions(n->instructions);
-  //pour quitter le programme
+
+  nasm_liste_fonctions(n->fonctions);
+
   nasm_commande("mov", "eax", "0" , NULL, "1 est le code de SYS_EXIT");
   nasm_commande("int", "0x80", NULL, NULL, "exit");
 }
-
+void nasm_liste_fonctions(n_l_fonctions *n) {
+	do {
+		if (n->fonction != NULL){
+			nasm_fonction(n->fonction);
+		}
+		n = n->fonctions;
+	} while(n != NULL );
+}
+void nasm_fonction(n_fonction* n)
+{
+  nasm_liste_instructions(n->l_instructions);
+}
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
 		if (n->instruction != NULL){
@@ -62,12 +84,11 @@ void nasm_liste_instructions(n_l_instructions *n) {
 		n = n->instructions;
 	} while(n != NULL );
 }
-
 void nasm_instruction(n_instruction* n){
 	if(n->type_instruction == i_ecrire){
 		nasm_exp(n->u.exp);
-		nasm_commande("pop", "eax", NULL, NULL, NULL); //on dépile la valeur d'expression sur eax
-		nasm_commande("call", "iprintLF", NULL, NULL, NULL); //on envoie la valeur d'eax sur la sortie standard
+		nasm_commande("pop", "eax", NULL, NULL, "depile sur eax");
+		nasm_commande("call", "iprintLF", NULL, NULL, "envoie eax sur la sortie standard");
 	}
   if(n->type_instruction == i_lire){
     nasm_commande("mov", "eax", "sinput", NULL, "charge l’adresse sinput");
@@ -76,7 +97,6 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("push", "eax", NULL, NULL, "empile eax");
 	}
   if(n->type_instruction == i_condition){
-    // on crée les labels pour le si, le else et la fin
     char label_if[10];
     sprintf(label_if, "if%d", if_label_count);
     char label_else[10];
@@ -84,13 +104,13 @@ void nasm_instruction(n_instruction* n){
     char label_endif[10];
     sprintf(label_endif, "endif%d", fin_label_count);
 
-    nasm_exp(n->u.condition.expr); //Evaluation expression
-    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); // Recuperation du resultat
-    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); // Le boolean est il a 1 ?
+    nasm_exp(n->u.condition.expr);
+    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
+    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); 
 
     if(n->u.condition.l_instructions_2!=NULL)
     {
-      nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon"); // Si non, saut a l etiquette du else
+      nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon"); 
     }
     else
     {
@@ -114,7 +134,6 @@ void nasm_instruction(n_instruction* n){
 	}
   if(n->type_instruction == i_boucle)
   {
-    // on crée les labels pour le si, le else et la fin
     char label_tantque[15];
     char tantque[15];
     sprintf(tantque, "TantQue%d", if_label_count);
@@ -124,9 +143,9 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_tantque, "TantQue%d:", label_count);
     nasm_commande(label_tantque, NULL, NULL, NULL, "Entrer dans le tantque");
 
-    nasm_exp(n->u.condition.expr); //Evaluation expression
-    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); // Recuperation du resultat
-    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); // Le boolean est il a 1 ?
+    nasm_exp(n->u.condition.expr);
+    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
+    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
     nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
 
     nasm_liste_instructions(n->u.condition.l_instructions);
@@ -145,8 +164,12 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
 
   }
+  if (n->type_instruction == i_fonction)
+  {
+    
+  }
+  
 }
-
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
 		nasm_operation(n->u.operation);
@@ -159,7 +182,6 @@ void nasm_exp(n_exp* n){
 	      //WORKING ON IT
 	}
 }
-
 void nasm_operation(n_operation* n){
   nasm_exp(n->exp1);
   nasm_exp(n->exp2);

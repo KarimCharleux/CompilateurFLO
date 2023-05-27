@@ -25,6 +25,8 @@ typedef struct n_condition n_condition;
 typedef struct n_boucle n_boucle;
 typedef struct n_variable n_variable;
 typedef struct n_fonction n_fonction;
+typedef struct n_l_fonctions n_l_fonctions;
+
 
 
 // SECONDAIRES -----------------------------------------------------------------------------------------------------------------
@@ -48,11 +50,17 @@ struct n_boucle
   n_exp* expr;
   n_l_instructions* l_instructions;
 };
+struct n_l_fonctions
+{
+  n_fonction* fonction;
+	n_l_fonctions* fonctions;
+};
+
 
 
 // PRINCIPALES -----------------------------------------------------------------------------------------------------------------
 struct n_programme{ 
-	n_l_instructions* instructions;	
+  n_l_fonctions* fonctions;
 };
 struct n_l_instructions{
 	n_instruction* instruction;
@@ -95,6 +103,8 @@ struct n_operation{
 void afficher_n_programme(n_programme* prog,int indent);
 void afficher_n_l_instructions(n_l_instructions* instructions ,int indent);
 void afficher_n_instruction(n_instruction* instruction ,int indent);
+void afficher_n_l_fonctions(n_l_fonctions* fonctions ,int indent);
+void afficher_n_fonction(n_fonction* fonction,int indent);
 void afficher_n_ecrire(n_ecrire* ecrire,int indent);
 void afficher_n_lire(n_lire* lire,int indent);
 void afficher_n_exp(n_exp* exp ,int indent);
@@ -112,8 +122,9 @@ void afficher_n_variable(n_variable variable, int indent);
 */
 
 // DEFAULT -----------------------------------------------------------------------------------------------------------------
-n_programme* creer_n_programme(n_l_instructions* instructions);
+n_programme* creer_n_programme(n_l_fonctions* fonctions);
 n_l_instructions* creer_n_l_instructions(n_instruction* instruction ,n_l_instructions* instructions);
+n_l_fonctions* creer_n_l_fonctions(n_fonction* fonction ,n_l_fonctions* fonctions);
 
 // INSTRUCTION -----------------------------------------------------------------------------------------------------------------
 n_instruction* creer_n_ecrire(n_exp* exp);
@@ -126,7 +137,7 @@ n_instruction* creer_n_variable(int type, char* id, n_exp* expr);
 
 n_instruction* creer_n_condition(n_exp* expr, n_l_instructions* l_instructions, n_l_instructions* l_instructions_2);
 n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions);
-n_instruction* creer_n_fonction(char* identifiant , n_l_instructions* l_instructions);
+n_fonction* creer_n_fonction(char* identifiant , n_l_instructions* l_instructions);
 
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
 n_exp* get_n_variable(char* identifiant);

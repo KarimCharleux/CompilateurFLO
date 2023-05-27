@@ -1,9 +1,13 @@
-si (2<4)
+main()
 {
-    ecrire(10);
-}
-sinon
-{
-    ecrire(5);
+    si (2<4)
+    {
+        ecrire(10);
+    }
+    sinon
+    {
+        ecrire(5);
+    };
 };
+
 

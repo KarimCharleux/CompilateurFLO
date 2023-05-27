@@ -1,4 +1,7 @@
-tantque(Vrai)
+mian()
 {
-   ecrire(5);
+   tantque(Vrai)
+   {
+      ecrire(5);
+   };
 };

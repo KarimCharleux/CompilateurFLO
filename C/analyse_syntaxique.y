@@ -17,6 +17,8 @@ n_programme* arbre_abstrait;
     n_programme* prog;
     n_l_instructions* l_inst;
     n_instruction* inst;
+    n_fonction* fonction;
+    n_l_fonctions* l_fonctions;
     n_exp* exp;
 }
 
@@ -63,6 +65,8 @@ n_programme* arbre_abstrait;
 %type <prog> prog
 %type <l_inst> listeInstructions
 %type <inst> instruction
+%type <fonction> fonction
+%type <l_fonctions> listeFonctions
 %type <inst> ecrire
 %type <inst> lire
 %type <exp> expr
@@ -82,7 +86,7 @@ n_programme* arbre_abstrait;
 //                                   
 
 
-prog: listeInstructions {
+prog: listeFonctions {
 arbre_abstrait =creer_n_programme($1);
 } 
 listeInstructions: instruction {
@@ -90,6 +94,12 @@ $$ =creer_n_l_instructions($1 ,NULL);
 } 
 listeInstructions: instruction listeInstructions {
 $$ =creer_n_l_instructions($1 ,$2);
+} 
+listeFonctions: fonction {
+$$ =creer_n_l_fonctions($1 ,NULL);
+} 
+listeFonctions: fonction listeFonctions {
+$$ =creer_n_l_fonctions($1 ,$2);
 } 
 
 
@@ -102,7 +112,7 @@ $$ =creer_n_l_instructions($1 ,$2);
 
 // FONCTIONS -----------------------------------------------------------------------------------------------------------------
 
-instruction: IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
+fonction: IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
     $$ = creer_n_fonction($1 , $5);
 }
 
