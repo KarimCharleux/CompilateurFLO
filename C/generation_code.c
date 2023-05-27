@@ -114,7 +114,25 @@ void nasm_instruction(n_instruction* n){
 	}
   if(n->type_instruction == i_boucle)
   {
+    // on crée les labels pour le si, le else et la fin
+    char label_tantque[15];
+    sprintf(label_tantque, "TantQue%d", if_label_count);
+    char label_end_tantque[15];
+    sprintf(label_end_tantque, "finTantQue%d", fin_label_count);
 
+    sprintf(label_tantque, "tantque%d:", label_count);
+    nasm_commande(label_tantque, NULL, NULL, NULL, "Entrer dans le tantque");
+
+    nasm_exp(n->u.condition.expr); //Evaluation expression
+    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); // Recuperation du resultat
+    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); // Le boolean est il a 1 ?
+    nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
+
+    nasm_liste_instructions(n->u.condition.l_instructions);
+    nasm_commande("jmp", label_tantque, NULL, NULL, "Aller au si");
+    
+    sprintf(label_end_tantque, "fin_tantque%d:", label_count);
+    nasm_commande(label_end_tantque, NULL, NULL, NULL, "Sortie du tantque");
 	}
   if(n->type_instruction == i_affectation)
   {

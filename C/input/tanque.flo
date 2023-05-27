@@ -1,0 +1,4 @@
+tantque(Vrai)
+{
+   ecrire(5);
+};

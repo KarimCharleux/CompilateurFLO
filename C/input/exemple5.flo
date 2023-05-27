@@ -1,9 +1,0 @@
-si (5<2)
-{
-    ecrire(10);
-}
-sinon
-{
-    ecrire(5);
-};
-

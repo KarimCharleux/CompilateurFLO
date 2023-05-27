@@ -1,7 +1,0 @@
-entier x = 5;
-
-#tantque(Vrai)
-#{
-#   ecrire(x);
-#    entier x = x+1;
-#};
