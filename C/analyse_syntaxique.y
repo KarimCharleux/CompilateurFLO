@@ -87,12 +87,10 @@ n_programme* arbre_abstrait;
 //                                   
 
 
-prog: listeFonctions listeInstructions {
-arbre_abstrait =creer_n_programme($1 , $2);
+prog: listeInstructions POINT_VIRGULE listeFonctions {
+    arbre_abstrait =creer_n_programme($3, $1, NULL);
 } 
-prog: listeInstructions POINT_VIRGULE listeFonctions{
-arbre_abstrait =creer_n_programme($3, $1);
-} 
+
 listeInstructions: instruction {
 $$ =creer_n_l_instructions($1 ,NULL);
 } 
