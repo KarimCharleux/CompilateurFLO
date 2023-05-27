@@ -74,6 +74,14 @@ n_programme* arbre_abstrait;
 
 %%
 
+//  ____        __             _ _   
+// |  _ \  ___ / _| __ _ _   _| | |_ 
+// | | | |/ _ \ |_ / _` | | | | | __|
+// | |_| |  __/  _| (_| | |_| | | |_ 
+// |____/ \___|_|  \__,_|\__,_|_|\__|
+//                                   
+
+
 prog: listeInstructions {
 arbre_abstrait =creer_n_programme($1);
 } 
