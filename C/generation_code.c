@@ -94,6 +94,8 @@ void nasm_fonction(n_fonction* n)
   sprintf(label_fonction, "_%s:\n", n->identifiant);
   printifm("%s",label_fonction);
   nasm_liste_instructions(n->l_instructions);
+  nasm_commande("ret", NULL, NULL, NULL, "Return");
+
 }
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
@@ -193,7 +195,6 @@ void nasm_instruction(n_instruction* n){
   {
     nasm_exp(n->u.exp);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
-    nasm_commande("ret", NULL, NULL, NULL, "Return");
   }
 }
 void nasm_exp(n_exp* n){

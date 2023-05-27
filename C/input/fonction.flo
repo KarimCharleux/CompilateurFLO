@@ -4,4 +4,5 @@ entier maFonction()
 {
     ecrire(5);
     ecrire(4+6);
+    retourner 7+2;
 };
