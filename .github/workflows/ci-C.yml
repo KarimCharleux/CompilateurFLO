@@ -38,8 +38,8 @@ jobs:
         continue-on-error: true
       - run: echo Si && ./C/output/bin/si
         continue-on-error: true
-      - run: echo TantQue && ./C/output/bin/tantque
-        continue-on-error: true
+     #- run: echo TantQue && ./C/output/bin/tantque
+     #  continue-on-error: true
       - run: echo Fonction && ./C/output/bin/fonction
         continue-on-error: true
 
