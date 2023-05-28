@@ -167,7 +167,7 @@ void nasm_liste_instructions(n_l_instructions *n) {
 		n = n->instructions;
     printf("n = %s\n", n);
 	} while(n != NULL );
-  printf("FIN PROG");
+  printf("FIN PROG\n");
 }
 void nasm_instruction(n_instruction* n){
 	if(n->type_instruction == i_ecrire){
