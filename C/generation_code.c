@@ -169,9 +169,7 @@ void nasm_instruction(n_instruction* n){
 	if(n->type_instruction == i_ecrire){
 		nasm_exp(n->u.exp);
 		nasm_commande("pop", "eax", NULL, NULL, "depile sur eax");
-    printf("OK ECRIRE\n");
 		nasm_commande("call", "iprintLF", NULL, NULL, "envoie eax sur la sortie standard");
-    printf("OK ECRIRE\n");
 	}
   if(n->type_instruction == i_lire){
     nasm_commande("mov", "eax", "sinput", NULL, "charge l’adresse sinput");
@@ -287,9 +285,7 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
     current_symbol = GLOBAL_SCOPE_NAME;
   }
-  printf("OK\n");
   free(n);
-  printf("OK2\n");
 }
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
