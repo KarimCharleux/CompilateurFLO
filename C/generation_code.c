@@ -289,7 +289,6 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
     current_symbol = GLOBAL_SCOPE_NAME;
   }
-  free(n);
 }
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
