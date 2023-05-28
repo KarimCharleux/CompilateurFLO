@@ -1,4 +1,8 @@
 maFonction();
+boolean x=Vrai;
+ecrire(x);
+x= 5>10;
+ecrire(x);
 ;
 entier maFonction()
 {
