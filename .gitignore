@@ -1,4 +1,4 @@
 main
 analyse_lexicale.c
 analyse_syntaxique.c
-output/
+output
