@@ -117,7 +117,7 @@ void nasm_prog(n_programme *n) {
   int i=1;
   n_l_fonctions* fonctions = n->fonctions;
   do {
-    printf("\n"); // BUG RESOLUTION WHY FLUSH ??
+   // printf("\n");  BUG RESOLUTION WHY FLUSH ??
 		if (fonctions->fonction != NULL){
       Symbol* symbol = malloc(sizeof(Symbol));
       symbol->symbol_name = fonctions->fonction->identifiant ;
