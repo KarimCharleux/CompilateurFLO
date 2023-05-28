@@ -147,27 +147,22 @@ void nasm_clean_local_variables(char* symbol_name)
 {
   Symbol* symbol = findSymbol(symbol_name);
   int i=0;
-  Variable* variable = symbol->variables[i];
-  while (variable != NULL)
+  while (symbol->variables[i] != NULL)
   {
     char string[40];
-    sprintf(string, "Depile local variable : %s", variable->variable_name);
+    sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
     nasm_commande("pop", "eax", NULL, NULL, string);
     symbol->variables[i]=NULL;
-    variable = symbol->variables[++i];
+    ++i;
   } 
 }
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
-    printf("DEBUT INST");
 		if (n->instruction != NULL){
 			nasm_instruction(n->instruction);
-      printf("FIN INSTRUCTION\n");
 		}
 		n = n->instructions;
-    printf("n = %s\n", n);
 	} while(n != NULL );
-  printf("FIN PROG\n");
 }
 void nasm_instruction(n_instruction* n){
 	if(n->type_instruction == i_ecrire){
