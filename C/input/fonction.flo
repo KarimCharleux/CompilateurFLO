@@ -2,7 +2,11 @@ maFonction();
 ;
 entier maFonction()
 {
-    ecrire(5);
+    entier x = 6;
+    x=7;
+    boolean y = Vrai;
+    y = Faux;
+    ecrire(x);
     ecrire(4+6);
-    retourner 7+2;
+    retourner 5;
 };

@@ -46,20 +46,20 @@ void afficher_boolean(int valeur,int indent){
 	}
 	printf("[Boolean:%d]\n",valeur);
 }
-void afficher_n_variable(n_variable variable, int indent)
+void afficher_n_variable(n_variable variable, int instruction_type, int indent)
 {
+	char string[15];
+    sprintf(string, "<variable - %d>", instruction_type);
+	afficher(string, indent);
 	if(variable.expr != NULL)
 	{
-		afficher("<variable>", indent);
 		afficher(variable.identifiant , indent+1);
 		afficher_n_exp(variable.expr, indent+1);
-		afficher("<variable>" , indent);
 	} else
 	{
-		afficher("<variable>" , indent);
 		afficher(variable.identifiant , indent+1);
-		afficher("</variable>" , indent);
 	}
+	afficher("<variable>" , indent);
 }
 
 // DEFAULT -----------------------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void afficher_n_instruction(n_instruction* instruction ,int indent){
 	}
 	if (instruction->type_instruction == i_declaration || instruction->type_instruction == i_affectation)
 	{
-		afficher_n_variable(instruction->u.variable, indent+1);
+		afficher_n_variable(instruction->u.variable, instruction->type_instruction, indent+1);
 	}	
 }
 void afficher_n_exp(n_exp* exp ,int indent){
@@ -125,7 +125,9 @@ void afficher_n_exp(n_exp* exp ,int indent){
 	} else if (exp->type_exp == i_boolean){
 		afficher_boolean(exp->u.valeur,indent);
 	} else if (exp->type_exp == i_variable){
-		afficher(exp->u.identifiant,indent);
+		afficher("<variable>" , indent);
+		afficher(exp->u.identifiant,indent+1);
+		afficher("</variable>" , indent);
 	}
 }
 void afficher_n_operation(n_operation* operation ,int indent){

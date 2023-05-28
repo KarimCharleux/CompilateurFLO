@@ -116,7 +116,7 @@ void afficher_n_exp(n_exp* exp ,int indent);
 void afficher_n_operation(n_operation* operation ,int indent);
 void afficher_n_condition(n_condition i_condition, int indent);
 void afficher_n_boucle(n_boucle i_boucle, int indent);
-void afficher_n_variable(n_variable variable, int indent);
+void afficher_n_variable(n_variable variable, int instruction_type, int indent);
 
 /* -----------------------------------------------------------------------------------------------------------------
 #   ____                                                 _     

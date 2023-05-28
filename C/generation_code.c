@@ -12,8 +12,8 @@ int if_label_count= 0;
 int else_label_count= 0;
 int fin_label_count= 0;
 int label_count= 0;
-int function_count=0;
-SymbolTable* symbolTableList[10];
+char* current_symbol = GLOBAL_SCOPE_NAME;
+Symbol* symbolTable[MAX_SYMBOL_TABLE_SIZE] = {NULL};
 
 // -----------------------------------------------------------------------------------------------------------------
 //  _____           _     
@@ -42,6 +42,45 @@ void nasm_commande(char *opcode, char *op1, char *op2, char *op3, char *comment)
   }
   nasm_comment(comment);
 }
+Symbol* creer_global_scope()
+{
+  Symbol* symbolTable = malloc(sizeof(Symbol));
+  symbolTable->symbol_name = GLOBAL_SCOPE_NAME ;
+  symbolTable->type = entier;
+  for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
+  {
+     symbolTable->variables[i] = NULL;
+  }
+
+  return symbolTable;
+}
+Symbol* findSymbol(char* identifiant)
+{
+  int i=0;
+  do{
+    if(symbolTable[i] != NULL && strcmp(symbolTable[i]->symbol_name, identifiant)==0)
+    { 
+      return symbolTable[i];
+    }
+    ++i;
+  }while (symbolTable[i]!= NULL);
+
+  return NULL;
+} 
+Variable* findVariable(char* identifiant, Variable* variableTable[])
+{
+  int i=0;
+  do{
+    if(variableTable[i] != NULL && strcmp(variableTable[i]->variable_name, identifiant)==0)
+    { 
+      return variableTable[i];
+    }
+    ++i;
+  }while (variableTable[i]!= NULL);
+
+  return NULL;
+} 
+
 
 // -----------------------------------------------------------------------------------------------------------------
 //  ____        __             _ _   
@@ -53,14 +92,19 @@ void nasm_commande(char *opcode, char *op1, char *op2, char *op3, char *comment)
 
 // DEFAULT -----------------------------------------------------------------------------------------------------------------
 void nasm_prog(n_programme *n) {
-  int i=0;
+  symbolTable[0] = creer_global_scope();
+  int i=1;
   n_l_fonctions* fonctions = n->fonctions;
   do {
 		if (fonctions->fonction != NULL){
-      SymbolTable* symbolTable = malloc(sizeof(SymbolTable));
-      symbolTable->function_name = fonctions->fonction->identifiant ;
-      symbolTable->type = fonctions->fonction->type;
-      symbolTableList[i] = symbolTable;
+      Symbol* Symbol = malloc(sizeof(Symbol));
+      Symbol->symbol_name = fonctions->fonction->identifiant ;
+      Symbol->type = fonctions->fonction->type;
+      for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
+      {
+        Symbol->variables[i] = NULL;
+      }
+      symbolTable[i] = Symbol;
 		}
 		fonctions = fonctions->fonctions;
     ++i;
@@ -91,13 +135,27 @@ void nasm_liste_fonctions(n_l_fonctions *n) {
 }
 void nasm_fonction(n_fonction* n)
 {
-  ++function_count;
+  current_symbol = n->identifiant;
   char label_fonction[15];
   sprintf(label_fonction, "_%s:\n", n->identifiant);
   printifm("%s",label_fonction);
   nasm_liste_instructions(n->l_instructions);
+  nasm_clean_local_variables(n->identifiant);
   nasm_commande("ret", NULL, NULL, NULL, "Return");
-
+}
+void nasm_clean_local_variables(char* symbol_name)
+{
+  Symbol* symbol = findSymbol(symbol_name);
+  int i=0;
+  Variable* variable = symbol->variables[i];
+  while (variable != NULL)
+  {
+    char string[40];
+    sprintf(string, "Depile local variable : %s", variable->variable_name);
+    nasm_commande("pop", "eax", NULL, NULL, string);
+    symbol->variables[i]=NULL;
+    variable = symbol->variables[++i];
+  } 
 }
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
@@ -179,13 +237,35 @@ void nasm_instruction(n_instruction* n){
 	}
   if(n->type_instruction == i_affectation)
   {
+    Symbol* symbol = findSymbol(current_symbol);
+    Variable* variable = findVariable(n->u.variable.identifiant, symbol->variables);
 
+    nasm_exp(n->u.variable.expr);
+    nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
+
+    char variable_adresse[15];
+    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
+    nasm_commande("mov", variable_adresse, "eax", NULL, "Remplace par la nouvelle valeur");
   }
   if(n->type_instruction == i_declaration)
   {
-    nasm_exp(n->u.variable.expr);
-    nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
+    Symbol* symbol = findSymbol(current_symbol);
+    if(n->u.variable.expr != NULL)
+    {
+      nasm_exp(n->u.variable.expr);
+    }
+    else
+    {
+      nasm_commande("push", "0", NULL, NULL, "Insere 0 dans la pile");
+    }
 
+    symbol->current_memory_used += 4; 
+    int i=0;
+    while (symbol->variables[i] != NULL)++i;
+    Variable* new_variable = malloc(sizeof(Variable));
+    new_variable->variable_name = n->u.variable.identifiant;
+    new_variable->offset_with_ebp = symbol->current_memory_used;
+    symbol->variables[i] = new_variable;
   }
   if(n->type_instruction == i_appel)
   {
@@ -195,16 +275,15 @@ void nasm_instruction(n_instruction* n){
   }
   if(n->type_instruction == i_retour)
   { 
-    if(function_count >0)
+    if(strcmp(current_symbol, GLOBAL_SCOPE_NAME)==0 || (n->u.exp->type_exp!=0 && findSymbol(current_symbol)->type != n->u.exp->type_exp))
     {
-      nasm_exp(n->u.exp);
-      nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
-      --function_count; 
+      printf("Retrun type 1 = %d\n", findSymbol(current_symbol)->type);
+      printf("Retrun type 2 =%d\n", n->u.exp->type_exp);
+      exit(43);
     }
-    else
-    {
-      exit(42);
-    }
+    nasm_exp(n->u.exp);
+    nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
+    current_symbol = GLOBAL_SCOPE_NAME;
   }
 }
 void nasm_exp(n_exp* n){
@@ -216,12 +295,20 @@ void nasm_exp(n_exp* n){
       	nasm_commande("push", buffer, NULL, NULL, NULL) ;
 	}
   else if (n->type_exp == i_variable){
-	      //WORKING ON IT
+    Symbol* symbol = findSymbol(current_symbol);
+    Variable* variable = findVariable(n->u.identifiant, symbol->variables);
+
+    char variable_adresse[15];
+    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
+	  nasm_commande("mov", "eax", variable_adresse, NULL, "Recupere la variable");
+    nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
 	}
+  free(n);
 }
 void nasm_operation(n_operation* n){
   nasm_exp(n->exp1);
   nasm_exp(n->exp2);
+
   nasm_commande("pop", "ebx", NULL, NULL, "depile la seconde operande dans ebx");
   nasm_commande("pop", "eax", NULL, NULL, "depile la permière operande dans eax");
   if (n->type_operation == '+'){
@@ -273,4 +360,5 @@ void nasm_operation(n_operation* n){
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   nasm_commande("push", "eax" , NULL, NULL, "empile le résultat");  
+  free(n);
 }
