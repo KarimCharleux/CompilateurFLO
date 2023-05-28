@@ -8,6 +8,7 @@ entier maFonction()
     x=7;
     boolean y = Vrai;
     y = Faux;
+    ecrire(2);
     ecrire(x);
     ecrire(4+6);
     retourner 5;
