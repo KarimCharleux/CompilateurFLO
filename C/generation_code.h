@@ -14,7 +14,6 @@ typedef struct
 {
   enum Type type;
   char* symbol_name;
-  enum Type* var_type;
   int current_memory_used;
   Variable* variables[MAX_SYMBOL_TABLE_SIZE];
 } Symbol;

@@ -115,6 +115,7 @@ void nasm_prog(n_programme *n) {
       Symbol* Symbol = malloc(sizeof(Symbol));
       Symbol->symbol_name = fonctions->fonction->identifiant ;
       Symbol->type = fonctions->fonction->type;
+      Symbol->current_memory_used = 0;
       for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
       {
         Symbol->variables[i] = NULL;
