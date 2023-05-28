@@ -1,5 +1,3 @@
-main();
-;
 entier main()
 {
    tantque(Vrai)
@@ -7,3 +5,5 @@ entier main()
       ecrire(5);
    };
 };
+
+main();

@@ -211,11 +211,11 @@ void nasm_instruction(n_instruction* n){
     char label_endif[10];
     sprintf(label_endif, "endif%d", fin_label_count);
 
-    nasm_exp(n->u.condition.expr);
+    nasm_exp(n->u.condition->expr);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); 
 
-    if(n->u.condition.l_instructions_2!=NULL)
+    if(n->u.condition->l_instructions_2!=NULL)
     {
       nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon"); 
     }
@@ -226,14 +226,14 @@ void nasm_instruction(n_instruction* n){
     
     sprintf(label_if, "if%d:", label_count);
     nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
-    nasm_liste_instructions(n->u.condition.l_instructions);
+    nasm_liste_instructions(n->u.condition->l_instructions);
     nasm_commande("jmp", label_endif, NULL, NULL, "Aller au si");
 
-    if(n->u.condition.l_instructions_2!=NULL)
+    if(n->u.condition->l_instructions_2!=NULL)
     {
       sprintf(label_else, "else%d:", label_count);
       nasm_commande(label_else, NULL, NULL, NULL, "Aller dans le sinon");
-      nasm_liste_instructions(n->u.condition.l_instructions_2);
+      nasm_liste_instructions(n->u.condition->l_instructions_2);
     }
     sprintf(label_endif, "endif%d:", fin_label_count);
     nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
@@ -250,12 +250,12 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_tantque, "TantQue%d:", label_count);
     nasm_commande(label_tantque, NULL, NULL, NULL, "Entrer dans le tantque");
 
-    nasm_exp(n->u.condition.expr);
+    nasm_exp(n->u.condition->expr);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
     nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
 
-    nasm_liste_instructions(n->u.condition.l_instructions);
+    nasm_liste_instructions(n->u.condition->l_instructions);
     nasm_commande("jmp", tantque, NULL, NULL, "Aller au si");
     
     sprintf(label_end_tantque, "finTantQue%d:", label_count);
@@ -264,9 +264,9 @@ void nasm_instruction(n_instruction* n){
   if(n->type_instruction == i_affectation)
   {
     Symbol* symbol = findSymbol(current_symbol);
-    Variable* variable = findVariable(n->u.variable.identifiant, symbol->variables);
+    Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
 
-    nasm_exp(n->u.variable.expr);
+    nasm_exp(n->u.variable->expr);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
     char variable_adresse[15];
     sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
@@ -275,9 +275,9 @@ void nasm_instruction(n_instruction* n){
   if(n->type_instruction == i_declaration)
   {
     Symbol* symbol = findSymbol(current_symbol);
-    if(n->u.variable.expr != NULL)
+    if(n->u.variable->expr != NULL)
     {
-      nasm_exp(n->u.variable.expr);
+      nasm_exp(n->u.variable->expr);
     }
     else
     {
@@ -287,7 +287,7 @@ void nasm_instruction(n_instruction* n){
     int i=0;
     while (symbol->variables[i] != NULL)++i;
     Variable* new_variable = malloc(sizeof(Variable));
-    new_variable->variable_name = n->u.variable.identifiant;
+    new_variable->variable_name = n->u.variable->identifiant;
     new_variable->offset_with_ebp = symbol->current_memory_used;
     symbol->variables[i] = new_variable;
   }
@@ -297,7 +297,6 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_appel, "_%s", n->u.identifiant);
     nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
-    //nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat de la fonction");
     nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");
   }
   if(n->type_instruction == i_retour)
@@ -309,8 +308,7 @@ void nasm_instruction(n_instruction* n){
       exit(43);
     }
     nasm_exp(n->u.exp);
-    // TO BE REVOVE IN THE FUTURE
-    nasm_commande("pop", "eax", NULL, NULL, "Depile");
+    nasm_commande("pop", "eax", NULL, NULL, "Passe le retour par eax");
     current_symbol = GLOBAL_SCOPE_NAME;
   }
 }
@@ -324,7 +322,7 @@ void nasm_exp(n_exp* n){
 	}
   else if (n->type_exp == i_variable){
     Symbol* symbol = findSymbol(current_symbol);
-    Variable* variable = findVariable(n->u.identifiant, symbol->variables);
+    Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
 
     char variable_adresse[15];
     sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);

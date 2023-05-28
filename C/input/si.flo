@@ -1,5 +1,3 @@
-main();
-;
 entier main()
 {
     si (2<4)
@@ -12,4 +10,4 @@ entier main()
     };
 };
 
-
+main();

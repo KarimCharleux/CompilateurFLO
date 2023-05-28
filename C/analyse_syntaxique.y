@@ -14,6 +14,7 @@ n_programme* arbre_abstrait;
 %union {
     int entier;
     char* identifiant;
+    n_variable* variable;
     n_programme* prog;
     n_l_instructions* l_inst;
     n_instruction* inst;
@@ -72,7 +73,9 @@ n_programme* arbre_abstrait;
 %type <inst> lire
 %type <exp> expr
 %type <exp> facteur
-%type <exp> variable
+%type <variable> variable
+%type <variable> declaration
+%type <variable> affectation
 %type <exp> produit
 %type <exp> boolean
 %type <exp> somme
@@ -87,21 +90,21 @@ n_programme* arbre_abstrait;
 //                                   
 
 
-prog: listeInstructions POINT_VIRGULE listeFonctions {
-    arbre_abstrait =creer_n_programme($3, $1, NULL);
+prog: listeFonctions listeInstructions {
+    arbre_abstrait =creer_n_programme($1, $2, NULL);
 } 
 
 listeInstructions: instruction {
-$$ =creer_n_l_instructions($1 ,NULL);
+    $$ =creer_n_l_instructions($1 ,NULL);
 } 
 listeInstructions: instruction listeInstructions {
-$$ =creer_n_l_instructions($1 ,$2);
+    $$ =creer_n_l_instructions($1 ,$2);
 } 
 listeFonctions: fonction {
-$$ =creer_n_l_fonctions($1 ,NULL);
+    $$ =creer_n_l_fonctions($1 ,NULL);
 } 
 listeFonctions: fonction listeFonctions {
-$$ =creer_n_l_fonctions($1 ,$2);
+    $$ =creer_n_l_fonctions($1 ,$2);
 } 
 
 
@@ -115,11 +118,12 @@ $$ =creer_n_l_fonctions($1 ,$2);
 // FONCTIONS -----------------------------------------------------------------------------------------------------------------
 
 fonction: TYPE_BOOLEAN IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(0 ,$2 , $6);
+    $$ = creer_n_fonction(0 ,$2, $6);
 }
 fonction: TYPE_ENTIER IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(1 ,$2 , $6);
+    $$ = creer_n_fonction(1 ,$2, $6);
 }
+
 
 // LIRE ECRIRE -----------------------------------------------------------------------------------------------------------------
 
@@ -154,20 +158,33 @@ instruction: TANTQUE PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OU
 
 // DECLARATION AFFECTATION -----------------------------------------------------------------------------------------------------------------
 
-instruction: TYPE_BOOLEAN IDENTIFIANT POINT_VIRGULE{
+declaration: TYPE_BOOLEAN IDENTIFIANT{
 	$$ = creer_n_variable(0, $2, NULL);
 }
-instruction: TYPE_ENTIER IDENTIFIANT POINT_VIRGULE {
+declaration: TYPE_ENTIER IDENTIFIANT {
 	$$ = creer_n_variable(1, $2, NULL);
 }
-instruction: IDENTIFIANT EQUAL expr POINT_VIRGULE {
-	$$ = creer_n_affectation($1, $3);
+affectation: IDENTIFIANT EQUAL expr {
+	$$ = creer_n_variable(-1, $1, $3);
 }
-instruction: TYPE_BOOLEAN IDENTIFIANT EQUAL expr POINT_VIRGULE {
+affectation: TYPE_BOOLEAN IDENTIFIANT EQUAL expr {
+	$$ = creer_n_variable(0, $2, $4);
+}
+affectation: TYPE_ENTIER IDENTIFIANT EQUAL expr {
 	$$ = creer_n_variable(1, $2, $4);
 }
-instruction: TYPE_ENTIER IDENTIFIANT EQUAL expr POINT_VIRGULE {
-	$$ = creer_n_variable(1, $2, $4);
+variable: IDENTIFIANT{
+    $$ = creer_n_variable(-1, $1, NULL);
+}
+
+instruction: affectation POINT_VIRGULE {
+    $$ = n_variable_to_n_instruction($1);
+}
+instruction: declaration POINT_VIRGULE {
+    $$ = n_variable_to_n_instruction($1);
+}
+facteur: variable{
+    $$ = n_variable_to_n_expr($1);
 }
 
 // APPEL RETOUR -----------------------------------------------------------------------------------------------------------------
@@ -188,17 +205,8 @@ instruction: IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE POINT_VIRGULE{
 //  \____|_|  \__,_|_| |_| |_|_| |_| |_|\__,_|_|_|  \___|  \___/| .__/ \___|_|  \__,_|\__|_|\___/|_| |_|___/
 //                                                              |_|                                         
 
-// VARIABLE -----------------------------------------------------------------------------------------------------------------
-
-variable: IDENTIFIANT{
-    $$ = get_n_variable($1);
-}
-
 // FACTEUR -----------------------------------------------------------------------------------------------------------------
 
-facteur: variable{
-    $$ = $1;
-}
 facteur: PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE {
     $$ =$2 ;
 }

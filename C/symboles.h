@@ -98,6 +98,7 @@ union YYSTYPE
 
     int entier;
     char* identifiant;
+    n_variable* variable;
     n_programme* prog;
     n_l_instructions* l_inst;
     n_instruction* inst;
@@ -105,7 +106,7 @@ union YYSTYPE
     n_l_fonctions* l_fonctions;
     n_exp* exp;
 
-#line 109 "symboles.h"
+#line 110 "symboles.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

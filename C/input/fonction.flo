@@ -1,15 +1,21 @@
-maFonction();
-boolean x=Vrai;
-ecrire(x);
-x= 5>10;
-ecrire(x);
-;
 entier maFonction()
 {
+    ecrire(5);
     entier x = 6;
-    x=7;
-    boolean y = Vrai;
-    y = Faux;
-    ecrire(x);
-    retourner 5;
+    #x=7;
+    #boolean y = Vrai;
+    #y = Faux;
+    #ecrire(x);
+    #retourner 5;
 };
+
+#boolean maFonction2(entier x, entier y)
+#{
+#   ecrire(x+y);
+#};
+
+
+maFonction();
+ecrire(10);
+#maFonction2(5,2);
+

@@ -1,7 +1,6 @@
-main();
-;
 entier main()
 {
     lire();
 };
 
+main();
