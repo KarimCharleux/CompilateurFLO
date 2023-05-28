@@ -158,7 +158,7 @@ void nasm_prog(n_programme *n) {
         do {
           Variable* new_variable = malloc(sizeof(Variable));
           new_variable->variable_name = fonctions->fonction->parametres->variable->identifiant;
-          new_variable->offset_with_ebp = 8+j*4;
+          new_variable->offset_with_ebp = 4+j*4;
           new_variable->type = fonctions->fonction->parametres->variable->type;
           symbol->variables[j] = new_variable;
           ++symbol->nb_built_in_parameters;
@@ -357,7 +357,7 @@ void nasm_instruction(n_instruction* n){
         } while(n->u.appel->parameters != NULL );
       }
     }
-    
+
     char label_appel[STRING_SIZE];
     sprintf(label_appel, "_%s", n->u.appel->identifiant);
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
