@@ -28,7 +28,11 @@ typedef struct n_boucle n_boucle;
 typedef struct n_variable n_variable;
 typedef struct n_fonction n_fonction;
 typedef struct n_l_fonctions n_l_fonctions;
+typedef struct n_l_declaration n_l_declaration;
 typedef struct n_l_expression n_l_expression;
+typedef struct n_appel n_appel;
+
+
 
 
 
@@ -37,6 +41,7 @@ struct n_fonction
 {
   char* identifiant;
   enum Type type;
+  n_l_declaration* parametres;
   n_l_instructions* l_instructions;
 };
 struct n_variable{
@@ -55,11 +60,28 @@ struct n_boucle
   n_exp* expr;
   n_l_instructions* l_instructions;
 };
+struct n_appel
+{
+  char* identifiant;
+  n_l_expression* parameters;
+};
 struct n_l_fonctions
 {
   n_fonction* fonction;
 	n_l_fonctions* fonctions;
 };
+struct n_l_declaration
+{
+  n_variable* variable;
+  n_l_declaration* l_declaration;
+};
+struct n_l_expression
+{
+  n_exp* expression;
+  n_l_expression* l_expression;
+};
+
+
 
 
 
@@ -80,7 +102,7 @@ struct n_instruction{
     n_boucle* boucle;
     n_variable* variable;
     n_fonction* fonction;
-    char* identifiant;
+    n_appel* appel;
   }u;
 };
 
@@ -121,6 +143,7 @@ void afficher_n_operation(n_operation* operation ,int indent);
 void afficher_n_condition(n_condition* i_condition, int indent);
 void afficher_n_boucle(n_boucle* i_boucle, int indent);
 void afficher_n_variable(n_variable* variable, int indent);
+void afficher_n_l_declaration(n_l_declaration* parametres, int indent);
 
 /* -----------------------------------------------------------------------------------------------------------------
 #   ____                                                 _     
@@ -134,20 +157,23 @@ void afficher_n_variable(n_variable* variable, int indent);
 n_programme* creer_n_programme(n_l_fonctions* fonctions, n_l_instructions* instructions, n_programme* programmeList);
 n_l_instructions* creer_n_l_instructions(n_instruction* instruction ,n_l_instructions* instructions);
 n_l_fonctions* creer_n_l_fonctions(n_fonction* fonction ,n_l_fonctions* fonctions);
-n_fonction* creer_n_fonction(int type, char* identifiant , n_l_instructions* l_instructions);
+n_l_declaration* creer_n_l_declaration(n_variable* variable, n_l_declaration* l_declaration);
+n_l_expression* creer_n_l_expression(n_exp* expression, n_l_expression* l_expression);
+n_fonction* creer_n_fonction(int type, char* identifiant ,n_l_declaration* l_declaration, n_l_instructions* l_instructions);
 n_variable* creer_n_variable(int type, char* identifiant, n_exp* expr);
+n_appel* creer_n_appel(char* identifiant, n_l_expression* l_expression);
 
 // INSTRUCTION -----------------------------------------------------------------------------------------------------------------
 n_instruction* creer_n_ecrire(n_exp* exp);
 n_instruction* creer_n_lire();
 n_instruction* creer_n_max(n_exp* exp);
-n_instruction* n_variable_to_n_instruction(n_variable* variable);
 
 n_instruction* creer_n_condition(n_exp* expr, n_l_instructions* l_instructions, n_l_instructions* l_instructions_2);
 n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions);
-
-n_instruction* creer_n_appel(char* identifiant);
 n_instruction* creer_n_retour(n_exp* expr);
+
+n_instruction* n_appel_to_n_instruction(n_appel* appel);
+n_instruction* n_variable_to_n_instruction(n_variable* variable);
 
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
 n_exp* n_variable_to_n_expr(n_variable* variable);

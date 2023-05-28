@@ -104,9 +104,12 @@ union YYSTYPE
     n_instruction* inst;
     n_fonction* fonction;
     n_l_fonctions* l_fonctions;
+    n_l_declaration* l_declaration;
+    n_l_expression* l_expression;
     n_exp* exp;
+    n_appel* appel;
 
-#line 110 "symboles.h"
+#line 113 "symboles.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

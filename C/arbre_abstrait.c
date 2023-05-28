@@ -82,8 +82,24 @@ void afficher_n_l_fonctions(n_l_fonctions* fonctions ,int indent){
 void afficher_n_fonction(n_fonction* fonction,int indent){
 	afficher("<fonction>",indent+1);
 	afficher(fonction->identifiant, indent+1);
+	if(fonction->parametres!=NULL)
+	{
+		afficher_n_l_declaration(fonction->parametres, indent+2);
+	}
 	afficher_n_l_instructions(fonction->l_instructions,indent+2);
 	afficher("</fonction>",indent+1);
+}
+void afficher_n_l_declaration(n_l_declaration* parametres, int indent)
+{
+	afficher("<liste_parametres>",indent);
+	
+	do {
+		if (parametres->variable != NULL){
+			afficher_n_variable(parametres->variable,indent+1);
+		}
+		parametres = parametres->l_declaration;
+	} while(parametres != NULL );
+	afficher("</liste_parametres>",indent);
 }
 void afficher_n_l_instructions(n_l_instructions* instructions ,int indent){
 	afficher("<liste_instuctions>",indent);
@@ -197,6 +213,21 @@ n_l_fonctions* creer_n_l_fonctions(n_fonction* fonction ,n_l_fonctions* fonction
 
 	return n;
 }
+n_l_declaration* creer_n_l_declaration(n_variable* variable, n_l_declaration* l_declaration)
+{
+	n_l_declaration* n = malloc(sizeof(n_l_declaration));
+	n->variable = variable;
+	n->l_declaration = l_declaration;
+
+	return n;
+}
+n_l_expression* creer_n_l_expression(n_exp* expression, n_l_expression* l_expression){
+	n_l_expression* n = malloc(sizeof(n_l_expression));
+	n->expression = expression;
+	n->l_expression = l_expression;
+
+	return n;
+}
 
 // INSTRUCTION -----------------------------------------------------------------------------------------------------------------
 n_instruction* creer_n_ecrire(n_exp* exp){
@@ -232,11 +263,12 @@ n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions)
 
 	return n;
 }
-n_fonction* creer_n_fonction(int type, char* identifiant , n_l_instructions* l_instructions)
+n_fonction* creer_n_fonction(int type, char* identifiant ,n_l_declaration* l_declaration, n_l_instructions* l_instructions)
 {
 	n_fonction* n= malloc(sizeof(n_fonction));
 	n->identifiant = identifiant;
 	n->type = type;
+	n->parametres = l_declaration;
 	n->l_instructions = l_instructions;
 
 	return n;
@@ -265,11 +297,19 @@ n_instruction* n_variable_to_n_instruction(n_variable* variable)
 
 	return n;
 }
-n_instruction* creer_n_appel(char* identifiant)
+n_appel* creer_n_appel(char* identifiant, n_l_expression* l_expression)
 {
-	n_instruction* n= malloc(sizeof(n_instruction));
+	n_appel* n= malloc(sizeof(n_appel));
+	n->identifiant = identifiant;
+	n->parameters = l_expression;
+
+	return n;
+}
+n_instruction* n_appel_to_n_instruction(n_appel* appel)
+{
+	n_instruction* n = malloc(sizeof(n_instruction));
 	n->type_instruction = i_appel;
-	n->u.identifiant = identifiant;
+	n->u.appel = appel;
 
 	return n;
 }

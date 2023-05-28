@@ -20,7 +20,10 @@ n_programme* arbre_abstrait;
     n_instruction* inst;
     n_fonction* fonction;
     n_l_fonctions* l_fonctions;
+    n_l_declaration* l_declaration;
+    n_l_expression* l_expression;
     n_exp* exp;
+    n_appel* appel;
 }
 
 
@@ -69,6 +72,8 @@ n_programme* arbre_abstrait;
 %type <inst> instruction
 %type <fonction> fonction
 %type <l_fonctions> listeFonctions
+%type <l_declaration> listDeclaration
+%type <l_expression> listeExpression
 %type <inst> ecrire
 %type <inst> lire
 %type <exp> expr
@@ -79,6 +84,7 @@ n_programme* arbre_abstrait;
 %type <exp> produit
 %type <exp> boolean
 %type <exp> somme
+%type <appel> appel
 
 %%
 
@@ -118,10 +124,16 @@ listeFonctions: fonction listeFonctions {
 // FONCTIONS -----------------------------------------------------------------------------------------------------------------
 
 fonction: TYPE_BOOLEAN IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(0 ,$2, $6);
+    $$ = creer_n_fonction(0 ,$2, NULL, $6);
 }
 fonction: TYPE_ENTIER IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(1 ,$2, $6);
+    $$ = creer_n_fonction(1 ,$2, NULL, $6);
+}
+fonction: TYPE_BOOLEAN IDENTIFIANT PARENTHESE_OUVRANTE listDeclaration PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
+    $$ = creer_n_fonction(0 ,$2, $4, $7);
+}
+fonction: TYPE_ENTIER IDENTIFIANT PARENTHESE_OUVRANTE listDeclaration PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
+    $$ = creer_n_fonction(1 ,$2, $4, $7);
 }
 
 
@@ -158,6 +170,12 @@ instruction: TANTQUE PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OU
 
 // DECLARATION AFFECTATION -----------------------------------------------------------------------------------------------------------------
 
+listDeclaration: declaration{
+    $$ = creer_n_l_declaration($1, NULL);
+}
+listDeclaration: declaration VIRGULE listDeclaration{
+    $$ = creer_n_l_declaration($1, $3);
+}
 declaration: TYPE_BOOLEAN IDENTIFIANT{
 	$$ = creer_n_variable(0, $2, NULL);
 }
@@ -187,13 +205,20 @@ facteur: variable{
     $$ = n_variable_to_n_expr($1);
 }
 
-// APPEL RETOUR -----------------------------------------------------------------------------------------------------------------
+// APPEL & RETOUR -----------------------------------------------------------------------------------------------------------------
 
 instruction: RETOURNER expr POINT_VIRGULE{
     $$ = creer_n_retour($2);
 }
-instruction: IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_appel($1);
+appel: IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE {
+    $$ = creer_n_appel($1, NULL);
+}
+appel: IDENTIFIANT PARENTHESE_OUVRANTE listeExpression PARENTHESE_FERMANTE {
+    $$ = creer_n_appel($1, $3);
+}
+
+instruction: appel POINT_VIRGULE{
+    $$ = n_appel_to_n_instruction($1);
 }
 
 
@@ -258,6 +283,12 @@ boolean: NON boolean {}
 
 expr: boolean{
     $$ = $1;
+}
+listeExpression: expr {
+    $$ = creer_n_l_expression($1, NULL);
+}
+listeExpression: expr VIRGULE listeExpression {
+    $$ = creer_n_l_expression($1, $3);
 }
 
 

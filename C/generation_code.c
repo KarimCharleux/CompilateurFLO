@@ -44,16 +44,17 @@ void nasm_commande(char *opcode, char *op1, char *op2, char *op3, char *comment)
 }
 Symbol* creer_global_scope()
 {
-  Symbol* symbolTable = malloc(sizeof(Symbol));
-  symbolTable->symbol_name = GLOBAL_SCOPE_NAME ;
-  symbolTable->type = entier;
-  symbolTable->current_memory_used = 0;
+  Symbol* symbol = malloc(sizeof(Symbol));
+  symbol->symbol_name = GLOBAL_SCOPE_NAME ;
+  symbol->type = entier;
+  symbol->current_memory_used = 0;
+  symbol->nb_built_in_parameters = 0;
   for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
   {
-     symbolTable->variables[i] = NULL;
+     symbol->variables[i] = NULL;
   }
 
-  return symbolTable;
+  return symbol;
 }
 Symbol* findSymbol(char* identifiant)
 {
@@ -80,6 +81,14 @@ Variable* findVariable(char* identifiant, Variable* variableTable[])
 
   return NULL;
 } 
+void printSymbols()
+{
+  int i=0;
+  do{
+    printSymbol(symbolTable[i]->symbol_name);
+    ++i;
+  }while (symbolTable[i]!= NULL);
+}
 void printSymbol(char* symbol_name)
 {
   Symbol* symbol = findSymbol(symbol_name);
@@ -96,9 +105,28 @@ void printSymbol(char* symbol_name)
   {
     printf("    ");
     printf("Var : %s\n", symbol->variables[i]->variable_name);
-    printf("          %d\n", symbol->variables[i]->offset_with_ebp);
+    printf("      ");
+    printf("Off : %d\n", symbol->variables[i]->offset_with_ebp);
     ++i;
   }
+}
+
+int verify_parameters(Variable* variableTable[], n_l_expression* n_l_expression)
+{
+  int i=0;
+  do{
+    if(n_l_expression==NULL || n_l_expression->expression->type_value != variableTable[i]->type)
+    {
+      return 0;
+    }
+    ++i;
+    n_l_expression = n_l_expression->l_expression;
+  }while (variableTable[i]!= NULL);
+  if(n_l_expression == NULL)
+  {
+    return 1;
+  }
+  return 0;
 }
 
 
@@ -123,9 +151,25 @@ void nasm_prog(n_programme *n) {
       symbol->symbol_name = fonctions->fonction->identifiant ;
       symbol->type = fonctions->fonction->type;
       symbol->current_memory_used = 0;
-      for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
+      symbol->nb_built_in_parameters = 0;
+      int j=0;
+      if(fonctions->fonction->parametres != NULL)
       {
-        symbol->variables[i] = NULL;
+        do {
+          Variable* new_variable = malloc(sizeof(Variable));
+          new_variable->variable_name = fonctions->fonction->parametres->variable->identifiant;
+          new_variable->offset_with_ebp = symbol->current_memory_used +4;
+          new_variable->type = fonctions->fonction->parametres->variable->type;
+          symbol->variables[j] = new_variable;
+          symbol->current_memory_used = new_variable->offset_with_ebp;
+          ++symbol->nb_built_in_parameters;
+          ++j;
+          fonctions->fonction->parametres = fonctions->fonction->parametres->l_declaration;
+        } while(fonctions->fonction->parametres != NULL );
+      }
+      for(j; j<MAX_SYMBOL_TABLE_SIZE ; ++j)
+      {
+        symbol->variables[j] = NULL;
       }
       symbolTable[i] = symbol;
 		}
@@ -140,7 +184,6 @@ void nasm_prog(n_programme *n) {
   printifm("%s","global _start\n");
 
   nasm_liste_fonctions(n->fonctions);
-
   printifm("%s","_start:\n");
   nasm_commande("mov", "ebp", "esp", NULL, "Met a jour ebp");
 
@@ -160,7 +203,7 @@ void nasm_liste_fonctions(n_l_fonctions *n) {
 void nasm_fonction(n_fonction* n)
 {
   current_symbol = n->identifiant;
-  char label_fonction[15];
+  char label_fonction[STRING_SIZE];
   sprintf(label_fonction, "_%s:\n", n->identifiant);
   printifm("%s",label_fonction);
 
@@ -173,13 +216,15 @@ void nasm_fonction(n_fonction* n)
 void nasm_clean_local_variables(char* symbol_name)
 {
   Symbol* symbol = findSymbol(symbol_name);
-  int i=0;
+  int i=symbol->nb_built_in_parameters;
+  
   while (symbol->variables[i] != NULL)
   {
     char string[40];
     sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
     nasm_commande("pop", "eax", NULL, NULL, string);
     symbol->variables[i]=NULL;
+    symbol->current_memory_used -=4;
     ++i;
   } 
 }
@@ -204,11 +249,11 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("push", "eax", NULL, NULL, "empile eax");
 	}
   if(n->type_instruction == i_condition){
-    char label_if[10];
+    char label_if[STRING_SIZE];
     sprintf(label_if, "if%d", if_label_count);
-    char label_else[10];
+    char label_else[STRING_SIZE];
     sprintf(label_else, "else%d", else_label_count);
-    char label_endif[10];
+    char label_endif[STRING_SIZE];
     sprintf(label_endif, "endif%d", fin_label_count);
 
     nasm_exp(n->u.condition->expr);
@@ -241,10 +286,10 @@ void nasm_instruction(n_instruction* n){
 	}
   if(n->type_instruction == i_boucle)
   {
-    char label_tantque[15];
-    char tantque[15];
+    char label_tantque[STRING_SIZE];
+    char tantque[STRING_SIZE];
     sprintf(tantque, "TantQue%d", if_label_count);
-    char label_end_tantque[15];
+    char label_end_tantque[STRING_SIZE];
     sprintf(label_end_tantque, "finTantQue%d", fin_label_count);
 
     sprintf(label_tantque, "TantQue%d:", label_count);
@@ -268,7 +313,7 @@ void nasm_instruction(n_instruction* n){
 
     nasm_exp(n->u.variable->expr);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
-    char variable_adresse[15];
+    char variable_adresse[STRING_SIZE];
     sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
     nasm_commande("mov", variable_adresse, "eax", NULL, "Remplace par la nouvelle valeur");
   }
@@ -288,16 +333,37 @@ void nasm_instruction(n_instruction* n){
     while (symbol->variables[i] != NULL)++i;
     Variable* new_variable = malloc(sizeof(Variable));
     new_variable->variable_name = n->u.variable->identifiant;
+    new_variable->type = n->u.variable->type;
     new_variable->offset_with_ebp = symbol->current_memory_used;
     symbol->variables[i] = new_variable;
   }
   if(n->type_instruction == i_appel)
   {
-    char label_appel[15];
-    sprintf(label_appel, "_%s", n->u.identifiant);
-    nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
-    nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
-    nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");
+    Symbol* symbol = findSymbol(n->u.appel->identifiant);
+    int i =0;
+    if(n->u.appel->parameters != NULL)
+    {
+      if(verify_parameters(symbol->variables, n->u.appel->parameters))
+      {
+        nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
+        do {
+          nasm_exp(n->u.appel->parameters->expression);
+          i+=4;
+          n->u.appel->parameters = n->u.appel->parameters->l_expression;
+        } while(n->u.appel->parameters != NULL );
+        
+        char label_appel[STRING_SIZE];
+        sprintf(label_appel, "[_%s+%d]", n->u.appel->identifiant, i);
+        nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
+      }
+    }
+    else
+    {
+      char label_appel[STRING_SIZE];
+      sprintf(label_appel, "_%s", n->u.appel->identifiant);
+      nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
+    }
+    nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");  
   }
   if(n->type_instruction == i_retour)
   { 
@@ -316,7 +382,7 @@ void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
 		nasm_operation(n->u.operation);
 	} else if (n->type_exp == i_value){
-	      char buffer[10];
+	      char buffer[STRING_SIZE];
 	      sprintf(buffer, "%d", n->u.valeur);
       	nasm_commande("push", buffer, NULL, NULL, NULL) ;
 	}
@@ -324,7 +390,7 @@ void nasm_exp(n_exp* n){
     Symbol* symbol = findSymbol(current_symbol);
     Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
 
-    char variable_adresse[15];
+    char variable_adresse[STRING_SIZE];
     sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
 	  nasm_commande("mov", "eax", variable_adresse, NULL, "Recupere la variable");
     nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");

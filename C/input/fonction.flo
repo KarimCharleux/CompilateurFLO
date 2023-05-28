@@ -9,13 +9,13 @@ entier maFonction()
     #retourner 5;
 };
 
-#boolean maFonction2(entier x, entier y)
-#{
-#   ecrire(x+y);
-#};
+boolean maFonction2(entier x, entier y)
+{
+   ecrire(x+y);
+};
 
 
 maFonction();
 ecrire(10);
-#maFonction2(5,2);
+maFonction2(5,2);
 
