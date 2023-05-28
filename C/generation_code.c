@@ -146,9 +146,11 @@ void nasm_fonction(n_fonction* n)
 void nasm_clean_local_variables(char* symbol_name)
 {
   Symbol* symbol = findSymbol(symbol_name);
+  printf("Clean -> %s\n",symbol->symbol_name );
   int i=0;
   while (symbol->variables[i] != NULL)
   {
+    printf("Clean -> %s\n",symbol->variables[i]->variable_name );
     char string[40];
     sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
     nasm_commande("pop", "eax", NULL, NULL, string);
