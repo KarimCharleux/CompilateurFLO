@@ -142,6 +142,7 @@ void nasm_prog(n_programme *n) {
   nasm_liste_fonctions(n->fonctions);
 
   printifm("%s","_start:\n");
+  nasm_commande("mov", "ebp", "esp", NULL, "Met a jour ebp");
 
   nasm_liste_instructions(n->instructions);
 
@@ -162,6 +163,9 @@ void nasm_fonction(n_fonction* n)
   char label_fonction[15];
   sprintf(label_fonction, "_%s:\n", n->identifiant);
   printifm("%s",label_fonction);
+
+  nasm_commande("mov", "ebp", "esp", NULL, "Met a jour ebp");
+
   nasm_liste_instructions(n->l_instructions);
   nasm_clean_local_variables(n->identifiant);
   nasm_commande("ret", NULL, NULL, NULL, "Return");
@@ -265,7 +269,7 @@ void nasm_instruction(n_instruction* n){
     nasm_exp(n->u.variable.expr);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
     char variable_adresse[15];
-    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
+    sprintf(variable_adresse, "[ebp+%d]", variable->offset_with_ebp);
     nasm_commande("mov", variable_adresse, "eax", NULL, "Remplace par la nouvelle valeur");
   }
   if(n->type_instruction == i_declaration)
@@ -291,7 +295,9 @@ void nasm_instruction(n_instruction* n){
   {
     char label_appel[15];
     sprintf(label_appel, "_%s", n->u.identifiant);
+    nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
+    nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");
   }
   if(n->type_instruction == i_retour)
   { 
@@ -319,7 +325,7 @@ void nasm_exp(n_exp* n){
     Variable* variable = findVariable(n->u.identifiant, symbol->variables);
 
     char variable_adresse[15];
-    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
+    sprintf(variable_adresse, "[ebp+%d]", variable->offset_with_ebp);
 	  nasm_commande("mov", "eax", variable_adresse, NULL, "Recupere la variable");
     nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
 	}
