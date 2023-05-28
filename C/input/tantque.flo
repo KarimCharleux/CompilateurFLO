@@ -3,7 +3,7 @@ entier main()
    tantque(Vrai)
    {
       ecrire(5);
-   };
-};
+   }
+}
 
 main();

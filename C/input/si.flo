@@ -7,7 +7,7 @@ entier main()
     sinon
     {
         ecrire(5);
-    };
-};
+    }
+}
 
 main();

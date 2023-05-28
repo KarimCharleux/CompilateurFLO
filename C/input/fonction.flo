@@ -7,12 +7,12 @@ entier maFonction()
     #y = Faux;
     #ecrire(x);
     #retourner 5;
-};
+}
 
 boolean maFonction2(entier x, entier y)
 {
    ecrire(x+y);
-};
+}
 
 
 maFonction();

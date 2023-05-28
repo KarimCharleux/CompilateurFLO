@@ -343,25 +343,9 @@ void nasm_instruction(n_instruction* n){
     new_variable->offset_with_ebp = symbol->current_memory_used;
     symbol->variables[i] = new_variable;
   }
-  if(n->type_instruction == i_appel)
+  if(n->type_instruction == i_appel_inst)
   {
-    Symbol* symbol = findSymbol(n->u.appel->identifiant);
-    if(n->u.appel->parameters != NULL)
-    {
-      if(verify_parameters(symbol->variables, n->u.appel->parameters))
-      {
-        nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
-        do {
-          nasm_exp(n->u.appel->parameters->expression);
-          n->u.appel->parameters = n->u.appel->parameters->l_expression;
-        } while(n->u.appel->parameters != NULL );
-      }
-    }
-
-    char label_appel[STRING_SIZE];
-    sprintf(label_appel, "_%s", n->u.appel->identifiant);
-    nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
-    nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");  
+     nasm_appel(n->u.appel);
   }
   if(n->type_instruction == i_retour)
   { 
@@ -375,6 +359,29 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("pop", "eax", NULL, NULL, "Passe le retour par eax");
     current_symbol = GLOBAL_SCOPE_NAME;
   }
+}
+void nasm_appel(n_appel* appel)
+{
+   Symbol* symbol = findSymbol(appel->identifiant);
+    if(appel->parameters != NULL)
+    {
+      if(verify_parameters(symbol->variables, appel->parameters))
+      {
+        nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
+        do {
+          nasm_exp(appel->parameters->expression);
+          appel->parameters = appel->parameters->l_expression;
+        } while(appel->parameters != NULL );
+      }
+      else{
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    char label_appel[STRING_SIZE];
+    sprintf(label_appel, "_%s", appel->identifiant);
+    nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
+    nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");
 }
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
@@ -400,6 +407,12 @@ void nasm_exp(n_exp* n){
 	  nasm_commande("mov", "eax", variable_adresse, NULL, "Recupere la variable");
     nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
 	}
+  else if (n->type_exp == i_appel_expr)
+  {
+    nasm_appel(n->u.appel);
+    nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
+  }
+  
 }
 void nasm_operation(n_operation* n){
   nasm_exp(n->exp1);

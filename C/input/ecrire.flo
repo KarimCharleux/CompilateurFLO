@@ -3,7 +3,7 @@ entier main()
     ecrire(42);
     ecrire(Vrai);
     ecrire(Faux);
-};
+}
 
 main();
 

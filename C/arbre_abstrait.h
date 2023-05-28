@@ -95,7 +95,7 @@ struct n_l_instructions{
 	n_l_instructions* instructions;
 };
 struct n_instruction{
-  enum { i_ecrire, i_lire, i_condition, i_boucle, i_affectation, i_declaration, i_appel, i_retour} type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
+  enum { i_ecrire, i_lire, i_condition, i_boucle, i_affectation, i_declaration, i_appel_inst, i_retour} type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
   union{ 
     n_exp* exp; // pour ecrire(exp);
     n_condition* condition; 
@@ -107,12 +107,13 @@ struct n_instruction{
 };
 
 struct n_exp{
-  enum {i_value, i_operation, i_variable} type_exp; // pour le moment une expression  peut-être une opération ou un entier
+  enum {i_value, i_operation, i_variable, i_appel_expr} type_exp; // pour le moment une expression  peut-être une opération ou un entier
   enum Type type_value;
   union{ 
     n_operation* operation;
     int valeur;
     n_variable* variable;
+    n_appel* appel;
   }u;
 };
 struct n_operation{
@@ -176,7 +177,8 @@ n_instruction* n_appel_to_n_instruction(n_appel* appel);
 n_instruction* n_variable_to_n_instruction(n_variable* variable);
 
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
-n_exp* n_variable_to_n_expr(n_variable* variable);
+n_exp* n_variable_to_n_expression(n_variable* variable);
+n_exp* n_appel_to_n_expression(n_appel* appel);
 n_exp* creer_n_entier(int valeur);
 n_exp* creer_n_boolean(int valeur);
 n_exp* creer_n_operation(char type_operation, n_exp* exp1, n_exp* exp2);

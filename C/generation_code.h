@@ -32,6 +32,7 @@ void nasm_liste_instructions(n_l_instructions *n);
 void nasm_instruction(n_instruction* n);
 void nasm_exp(n_exp* n);
 void nasm_operation(n_operation* n);
+void nasm_appel(n_appel* appel);
 
 
 #endif

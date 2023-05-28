@@ -49,8 +49,8 @@ espace               [ \t\r\n]
 "lire"               { return LIRE;                }
 "retourner"          { return RETOURNER;           }
 "max"                { return MAX;                 }
-"boolean"            { return TYPE_BOOLEAN;        }
-"entier"             { return TYPE_ENTIER;         }
+"boolean"            { yylval.entier=0; return TYPE;  }
+"entier"             { yylval.entier=1; return TYPE;  }
 "%"                  { return MODULO;              }
 {entier}             { yylval.entier=atoi(yytext); return ENTIER;}
 {lettre}{alphanum}*  { yylval.identifiant=strdup(yytext);  return IDENTIFIANT;}
@@ -71,10 +71,10 @@ int yywrap(){
 //  prend le int qui correspond au caractere defini
 
 
-int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE, SI, SINON, VRAI, FAUX, TANTQUE, OU, NON, LIRE, MAX, MODULO, ACCOLADE_OUVRANTE, ACCOLADE_FERMANTE, EQUAL, VIRGULE, SUPERIEUR_OU_EQUAL, INFERIEUR_OU_EQUAL, ET, OU, INFERIEUR, SUPERIEUR, DIVISER, MOINS};
-char *str_token[] = {"+","*","(",")", "ecrire", ";", "si", "sinon", "vrai", "faux", "tantque", "||", "!", "lire", "max", "%", "{", "}", "=", ",", ">=", "<=", "&", "|", "<", ">", "/", "-"};
+int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE, SI, SINON, VRAI, FAUX, TANTQUE, OU, NON, LIRE, MAX, MODULO, ACCOLADE_OUVRANTE, ACCOLADE_FERMANTE, EQUAL, VIRGULE, SUPERIEUR_OU_EQUAL, INFERIEUR_OU_EQUAL, ET, OU, INFERIEUR, SUPERIEUR, DIVISER, MOINS, RETOURNER};
+char *str_token[] = {"+","*","(",")", "ecrire", ";", "si", "sinon", "vrai", "faux", "tantque", "||", "!", "lire", "max", "%", "{", "}", "=", ",", ">=", "<=", "&", "|", "<", ">", "/", "-", "<-"};
 
-int nbMotsClefs = 28;
+int nbMotsClefs = 29;
 
 void nom_token( int token, char *nom, char *valeur ) {   
 
@@ -92,6 +92,10 @@ void nom_token( int token, char *nom, char *valeur ) {
   }
   else if( token == IDENTIFIANT ) {
     strcpy( nom, "identifiant" );  
+    strcpy( valeur, yytext );      
+  }
+  else if( token == TYPE ) {
+    strcpy( nom, "type" );  
     strcpy( valeur, yytext );      
   }
 }

@@ -308,7 +308,7 @@ n_appel* creer_n_appel(char* identifiant, n_l_expression* l_expression)
 n_instruction* n_appel_to_n_instruction(n_appel* appel)
 {
 	n_instruction* n = malloc(sizeof(n_instruction));
-	n->type_instruction = i_appel;
+	n->type_instruction = i_appel_inst;
 	n->u.appel = appel;
 
 	return n;
@@ -324,12 +324,21 @@ n_instruction* creer_n_retour(n_exp* expr)
 
 
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
-n_exp* n_variable_to_n_expr(n_variable* variable)
+n_exp* n_variable_to_n_expression(n_variable* variable)
 {
 	n_exp* n = malloc(sizeof(n_exp));
 	n->type_exp = i_variable;
 	n->type_value = variable->type;
 	n->u.variable = variable;
+
+	return n;
+}
+n_exp* n_appel_to_n_expression(n_appel* appel)
+{
+	n_exp* n = malloc(sizeof(n_exp));
+	n->type_exp = i_appel_expr;
+	n->type_value = none;
+	n->u.appel = appel;
 
 	return n;
 }

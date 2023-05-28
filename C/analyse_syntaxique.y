@@ -13,6 +13,7 @@ n_programme* arbre_abstrait;
 
 %union {
     int entier;
+    enum Type type;
     char* identifiant;
     n_variable* variable;
     n_programme* prog;
@@ -61,9 +62,8 @@ n_programme* arbre_abstrait;
 %token ACCOLADE_OUVRANTE
 %token ACCOLADE_FERMANTE
 %token ET
-%token TYPE_BOOLEAN
-%token TYPE_ENTIER
 %token RETOURNER
+%token <type> TYPE
 
 //completer
 
@@ -123,19 +123,12 @@ listeFonctions: fonction listeFonctions {
 
 // FONCTIONS -----------------------------------------------------------------------------------------------------------------
 
-fonction: TYPE_BOOLEAN IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(0 ,$2, NULL, $6);
+fonction: TYPE IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE {
+    $$ = creer_n_fonction($1 ,$2, NULL, $6);
 }
-fonction: TYPE_ENTIER IDENTIFIANT PARENTHESE_OUVRANTE PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(1 ,$2, NULL, $6);
+fonction: TYPE IDENTIFIANT PARENTHESE_OUVRANTE listDeclaration PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE {
+    $$ = creer_n_fonction($1 ,$2, $4, $7);
 }
-fonction: TYPE_BOOLEAN IDENTIFIANT PARENTHESE_OUVRANTE listDeclaration PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(0 ,$2, $4, $7);
-}
-fonction: TYPE_ENTIER IDENTIFIANT PARENTHESE_OUVRANTE listDeclaration PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE{
-    $$ = creer_n_fonction(1 ,$2, $4, $7);
-}
-
 
 // LIRE ECRIRE -----------------------------------------------------------------------------------------------------------------
 
@@ -155,15 +148,15 @@ lire: LIRE PARENTHESE_OUVRANTE PARENTHESE_FERMANTE {
 
 //SI SINON TANQUE -----------------------------------------------------------------------------------------------------------------
 
-instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
 {
     $$ = creer_n_condition($3, $6, NULL);
 }
-instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
 {
     $$ = creer_n_condition($3, $6, $10);
 }
-instruction: TANTQUE PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE POINT_VIRGULE
+instruction: TANTQUE PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
 {
     $$ = creer_n_boucle($3, $6);
 }
@@ -176,21 +169,16 @@ listDeclaration: declaration{
 listDeclaration: declaration VIRGULE listDeclaration{
     $$ = creer_n_l_declaration($1, $3);
 }
-declaration: TYPE_BOOLEAN IDENTIFIANT{
-	$$ = creer_n_variable(0, $2, NULL);
-}
-declaration: TYPE_ENTIER IDENTIFIANT {
-	$$ = creer_n_variable(1, $2, NULL);
+declaration: TYPE IDENTIFIANT{
+	$$ = creer_n_variable($1, $2, NULL);
 }
 affectation: IDENTIFIANT EQUAL expr {
 	$$ = creer_n_variable(-1, $1, $3);
 }
-affectation: TYPE_BOOLEAN IDENTIFIANT EQUAL expr {
-	$$ = creer_n_variable(0, $2, $4);
+affectation: TYPE IDENTIFIANT EQUAL expr {
+	$$ = creer_n_variable($1, $2, $4);
 }
-affectation: TYPE_ENTIER IDENTIFIANT EQUAL expr {
-	$$ = creer_n_variable(1, $2, $4);
-}
+
 variable: IDENTIFIANT{
     $$ = creer_n_variable(-1, $1, NULL);
 }
@@ -202,7 +190,7 @@ instruction: declaration POINT_VIRGULE {
     $$ = n_variable_to_n_instruction($1);
 }
 facteur: variable{
-    $$ = n_variable_to_n_expr($1);
+    $$ = n_variable_to_n_expression($1);
 }
 
 // APPEL & RETOUR -----------------------------------------------------------------------------------------------------------------
@@ -219,6 +207,9 @@ appel: IDENTIFIANT PARENTHESE_OUVRANTE listeExpression PARENTHESE_FERMANTE {
 
 instruction: appel POINT_VIRGULE{
     $$ = n_appel_to_n_instruction($1);
+}
+expr: appel{
+    $$ = n_appel_to_n_expression($1);
 }
 
 
