@@ -120,10 +120,14 @@ void afficher_n_instruction(n_instruction* instruction ,int indent){
 void afficher_n_exp(n_exp* exp ,int indent){
 	if (exp->type_exp == i_operation){
 		afficher_n_operation(exp->u.operation,indent);
-	} else if (exp->type_exp == i_entier){
-		afficher_entier(exp->u.valeur,indent);
-	} else if (exp->type_exp == i_boolean){
-		afficher_boolean(exp->u.valeur,indent);
+	} else if (exp->type_exp == i_value){
+		if(exp->type_value==boolean)
+		{
+			afficher_entier(exp->u.valeur,indent);
+		}
+		else{
+			afficher_boolean(exp->u.valeur,indent);
+		}
 	} else if (exp->type_exp == i_variable){
 		afficher("<variable>" , indent);
 		afficher(exp->u.identifiant,indent+1);
@@ -282,14 +286,16 @@ n_exp* get_n_variable(char* identifiant)
 }
 n_exp* creer_n_entier(int valeur){
   n_exp* n = malloc(sizeof(n_exp));
-  n->type_exp = i_entier;
+  n->type_exp = i_value;
+  n->type_value = entier;
   n->u.valeur = valeur;
   return n;
 }
 n_exp* creer_n_boolean(int valeur)
 {
 	n_exp* n = malloc(sizeof(n_exp));
-	n->type_exp = i_boolean;
+	n->type_exp = i_value;
+	n->type_value = boolean;
 	n->u.valeur = valeur;
   	return n;
 
@@ -299,6 +305,7 @@ n_exp* creer_n_operation(char type_operation,n_exp* exp1,n_exp* exp2){
   n_operation* n_op = malloc(sizeof(n_operation));
   n->u.operation = n_op;
   n->type_exp = i_operation;
+  n->type_value = exp2->type_value;
   n_op->type_operation = type_operation;
   n_op->exp1 = exp1;
   n_op->exp2 = exp2;

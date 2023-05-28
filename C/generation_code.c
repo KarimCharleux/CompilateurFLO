@@ -293,7 +293,7 @@ void nasm_instruction(n_instruction* n){
   }
   if(n->type_instruction == i_retour)
   { 
-    if(strcmp(current_symbol, GLOBAL_SCOPE_NAME)==0 || (n->u.exp->type_exp!=0 && findSymbol(current_symbol)->type != n->u.exp->type_exp))
+    if(strcmp(current_symbol, GLOBAL_SCOPE_NAME)==0 || (findSymbol(current_symbol)->type != n->u.exp->type_value))
     {
       printf("Retrun type 1 = %d\n", findSymbol(current_symbol)->type);
       printf("Retrun type 2 =%d\n", n->u.exp->type_exp);
@@ -307,7 +307,7 @@ void nasm_instruction(n_instruction* n){
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
 		nasm_operation(n->u.operation);
-	} else if (n->type_exp == i_entier || n->type_exp == i_boolean){
+	} else if (n->type_exp == i_value){
 	      char buffer[10];
 	      sprintf(buffer, "%d", n->u.valeur);
       	nasm_commande("push", buffer, NULL, NULL, NULL) ;
