@@ -6,14 +6,10 @@ ecrire(x);
 ;
 entier maFonction()
 {
-    ecrire(0);
     entier x = 6;
-    ecrire(1);
     x=7;
     boolean y = Vrai;
     y = Faux;
-    ecrire(2);
     ecrire(x);
-    ecrire(4+6);
     retourner 5;
 };

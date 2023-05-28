@@ -297,6 +297,7 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_appel, "_%s", n->u.identifiant);
     nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
+    nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat de la fonction");
     nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");
   }
   if(n->type_instruction == i_retour)
@@ -308,7 +309,6 @@ void nasm_instruction(n_instruction* n){
       exit(43);
     }
     nasm_exp(n->u.exp);
-    nasm_commande("pop", "eax", NULL, NULL, "Recupere leresultqt dans eax");
     current_symbol = GLOBAL_SCOPE_NAME;
   }
 }
