@@ -111,6 +111,7 @@ void nasm_prog(n_programme *n) {
   int i=1;
   n_l_fonctions* fonctions = n->fonctions;
   do {
+    printf("\n");
 		if (fonctions->fonction != NULL){
       Symbol* Symbol = malloc(sizeof(Symbol));
       Symbol->symbol_name = fonctions->fonction->identifiant ;
