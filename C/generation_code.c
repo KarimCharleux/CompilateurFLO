@@ -80,6 +80,21 @@ Variable* findVariable(char* identifiant, Variable* variableTable[])
 
   return NULL;
 } 
+void printSymbol(char* symbol_name)
+{
+  Symbol* symbol = findSymbol(symbol_name);
+  printf("Name : %s\n", symbol->symbol_name);
+  printf("Memory : %d\n", symbol->current_memory_used);
+  printf("Type : %d\n", symbol->type);
+  int i=0;
+  while (symbol->variables[i]!=NULL)
+  {
+    printf("    ");
+    printf("Var : %s\n", symbol->variables[i]->variable_name);
+    ++i;
+  }
+}
+
 
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -105,6 +120,7 @@ void nasm_prog(n_programme *n) {
         Symbol->variables[i] = NULL;
       }
       symbolTable[i] = Symbol;
+      printSymbol(Symbol->symbol_name);
 		}
 		fonctions = fonctions->fonctions;
     ++i;
@@ -141,27 +157,21 @@ void nasm_fonction(n_fonction* n)
   printifm("%s",label_fonction);
   nasm_liste_instructions(n->l_instructions);
   nasm_clean_local_variables(n->identifiant);
-  printf("CLEAN FINISH\n");
   nasm_commande("ret", NULL, NULL, NULL, "Return");
 }
 void nasm_clean_local_variables(char* symbol_name)
 {
+  printSymbol(symbol_name);
   Symbol* symbol = findSymbol(symbol_name);
-  printf("Clean -> %s\n",symbol->symbol_name );
-  printf("%p\n", symbol->variables);
-  printf("%p\n", symbol->variables[0]);
-  printf("%d\n", symbol->variables[0]==NULL);
   int i=0;
   while (symbol->variables[i] != NULL)
   {
-    printf("Clean -> %s\n",symbol->variables[i]->variable_name );
     char string[40];
     sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
     nasm_commande("pop", "eax", NULL, NULL, string);
     symbol->variables[i]=NULL;
     ++i;
   } 
-  printf("FINISH CLEANING\n");
 }
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
