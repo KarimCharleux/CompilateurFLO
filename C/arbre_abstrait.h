@@ -82,7 +82,7 @@ struct n_instruction{
   }u;
 };
 struct n_exp{
-  enum { i_operation, i_entier, i_boolean, i_variable} type_exp; // pour le moment une expression  peut-être une opération ou un entier
+  enum {i_boolean=0, i_entier=1, i_operation, i_variable} type_exp; // pour le moment une expression  peut-être une opération ou un entier
   union{ 
     n_operation* operation;
     int valeur;

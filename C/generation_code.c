@@ -15,13 +15,13 @@ int label_count= 0;
 char* current_symbol = GLOBAL_SCOPE_NAME;
 Symbol* symbolTable[MAX_SYMBOL_TABLE_SIZE] = {NULL};
 
-// -----------------------------------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------------------------------------------
 //  _____           _     
 // |_   _|__   ___ | |___ 
 //   | |/ _ \ / _ \| / __|
 //   | | (_) | (_) | \__ \
 //   |_|\___/ \___/|_|___/                        
-//  
+*/  
 
 void nasm_comment(char *comment) {
   if(comment != NULL) {
@@ -111,7 +111,7 @@ void nasm_prog(n_programme *n) {
   int i=1;
   n_l_fonctions* fonctions = n->fonctions;
   do {
-    printf("\n");
+    printf("\n"); // BUG RESOLUTION WHY FLUSH ??
 		if (fonctions->fonction != NULL){
       Symbol* Symbol = malloc(sizeof(Symbol));
       Symbol->symbol_name = fonctions->fonction->identifiant ;
