@@ -47,6 +47,7 @@ Symbol* creer_global_scope()
   Symbol* symbolTable = malloc(sizeof(Symbol));
   symbolTable->symbol_name = GLOBAL_SCOPE_NAME ;
   symbolTable->type = entier;
+  symbolTable->current_memory_used = 0;
   for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
   {
      symbolTable->variables[i] = NULL;
@@ -64,7 +65,6 @@ Symbol* findSymbol(char* identifiant)
     }
     ++i;
   }while (symbolTable[i]!= NULL);
-
   return NULL;
 } 
 Variable* findVariable(char* identifiant, Variable* variableTable[])
@@ -83,6 +83,11 @@ Variable* findVariable(char* identifiant, Variable* variableTable[])
 void printSymbol(char* symbol_name)
 {
   Symbol* symbol = findSymbol(symbol_name);
+  if(symbol==NULL)
+  {
+    printf("SYMBOL NOT FOUND\n");
+    return;
+  }
   printf("Name : %s\n", symbol->symbol_name);
   printf("Memory : %d\n", symbol->current_memory_used);
   printf("Type : %d\n", symbol->type);
@@ -91,6 +96,7 @@ void printSymbol(char* symbol_name)
   {
     printf("    ");
     printf("Var : %s\n", symbol->variables[i]->variable_name);
+    printf("          %d\n", symbol->variables[i]->offset_with_ebp);
     ++i;
   }
 }
@@ -113,16 +119,15 @@ void nasm_prog(n_programme *n) {
   do {
     printf("\n"); // BUG RESOLUTION WHY FLUSH ??
 		if (fonctions->fonction != NULL){
-      Symbol* Symbol = malloc(sizeof(Symbol));
-      Symbol->symbol_name = fonctions->fonction->identifiant ;
-      Symbol->type = fonctions->fonction->type;
-      Symbol->current_memory_used = 0;
+      Symbol* symbol = malloc(sizeof(Symbol));
+      symbol->symbol_name = fonctions->fonction->identifiant ;
+      symbol->type = fonctions->fonction->type;
+      symbol->current_memory_used = 0;
       for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
       {
-        Symbol->variables[i] = NULL;
+        symbol->variables[i] = NULL;
       }
-      symbolTable[i] = Symbol;
-      printSymbol(Symbol->symbol_name);
+      symbolTable[i] = symbol;
 		}
 		fonctions = fonctions->fonctions;
     ++i;
@@ -163,7 +168,6 @@ void nasm_fonction(n_fonction* n)
 }
 void nasm_clean_local_variables(char* symbol_name)
 {
-  printSymbol(symbol_name);
   Symbol* symbol = findSymbol(symbol_name);
   int i=0;
   while (symbol->variables[i] != NULL)
@@ -260,7 +264,6 @@ void nasm_instruction(n_instruction* n){
 
     nasm_exp(n->u.variable.expr);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
-
     char variable_adresse[15];
     sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
     nasm_commande("mov", variable_adresse, "eax", NULL, "Remplace par la nouvelle valeur");
@@ -276,7 +279,6 @@ void nasm_instruction(n_instruction* n){
     {
       nasm_commande("push", "0", NULL, NULL, "Insere 0 dans la pile");
     }
-
     symbol->current_memory_used += 4; 
     int i=0;
     while (symbol->variables[i] != NULL)++i;
