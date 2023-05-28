@@ -150,7 +150,7 @@ void nasm_clean_local_variables(char* symbol_name)
   printf("Clean -> %s\n",symbol->symbol_name );
   printf("%p\n", symbol->variables);
   printf("%p\n", symbol->variables[0]);
-  printf("%s\n", symbol->variables[0]);
+  printf("%d\n", symbol->variables[0]==NULL);
   int i=0;
   while (symbol->variables[i] != NULL)
   {
