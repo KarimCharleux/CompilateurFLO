@@ -1,7 +1,7 @@
 #ifndef __GENERATION_CODE__
 #define __GENERATION_CODE__
 
-#define MAX_SYMBOL_TABLE_SIZE 10
+#define MAX_SYMBOL_TABLE_SIZE 3
 #define GLOBAL_SCOPE_NAME "_global"
 
 typedef struct
