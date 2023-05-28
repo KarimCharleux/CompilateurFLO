@@ -141,6 +141,7 @@ void nasm_fonction(n_fonction* n)
   printifm("%s",label_fonction);
   nasm_liste_instructions(n->l_instructions);
   nasm_clean_local_variables(n->identifiant);
+  printf("CLEAN FINISH\n");
   nasm_commande("ret", NULL, NULL, NULL, "Return");
 }
 void nasm_clean_local_variables(char* symbol_name)
