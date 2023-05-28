@@ -159,6 +159,7 @@ void nasm_clean_local_variables(char* symbol_name)
 }
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
+    printf("DEBUT INST");
 		if (n->instruction != NULL){
 			nasm_instruction(n->instruction);
       printf("FIN INSTRUCTION\n");
