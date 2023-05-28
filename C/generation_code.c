@@ -363,5 +363,4 @@ void nasm_operation(n_operation* n){
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   nasm_commande("push", "eax" , NULL, NULL, "empile le résultat");  
-  free(n);
 }
