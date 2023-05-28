@@ -304,7 +304,9 @@ void nasm_exp(n_exp* n){
 	  nasm_commande("mov", "eax", variable_adresse, NULL, "Recupere la variable");
     nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
 	}
+  printf("OK\n");
   free(n);
+  printf("OK2\n");
 }
 void nasm_operation(n_operation* n){
   nasm_exp(n->exp1);
