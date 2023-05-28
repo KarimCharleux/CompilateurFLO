@@ -158,10 +158,9 @@ void nasm_prog(n_programme *n) {
         do {
           Variable* new_variable = malloc(sizeof(Variable));
           new_variable->variable_name = fonctions->fonction->parametres->variable->identifiant;
-          new_variable->offset_with_ebp = symbol->current_memory_used +4;
+          new_variable->offset_with_ebp = 8+j*4;
           new_variable->type = fonctions->fonction->parametres->variable->type;
           symbol->variables[j] = new_variable;
-          symbol->current_memory_used = new_variable->offset_with_ebp;
           ++symbol->nb_built_in_parameters;
           ++j;
           fonctions->fonction->parametres = fonctions->fonction->parametres->l_declaration;
@@ -314,7 +313,14 @@ void nasm_instruction(n_instruction* n){
     nasm_exp(n->u.variable->expr);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
     char variable_adresse[STRING_SIZE];
-    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
+    if(variable->offset_with_ebp>0)
+    {
+      sprintf(variable_adresse, "[ebp+%d]", variable->offset_with_ebp);
+    }
+    else
+    {
+      sprintf(variable_adresse, "[ebp%d]", variable->offset_with_ebp);
+    }
     nasm_commande("mov", variable_adresse, "eax", NULL, "Remplace par la nouvelle valeur");
   }
   if(n->type_instruction == i_declaration)
@@ -328,7 +334,7 @@ void nasm_instruction(n_instruction* n){
     {
       nasm_commande("push", "0", NULL, NULL, "Insere 0 dans la pile");
     }
-    symbol->current_memory_used += 4; 
+    symbol->current_memory_used -= 4; 
     int i=0;
     while (symbol->variables[i] != NULL)++i;
     Variable* new_variable = malloc(sizeof(Variable));
@@ -340,7 +346,6 @@ void nasm_instruction(n_instruction* n){
   if(n->type_instruction == i_appel)
   {
     Symbol* symbol = findSymbol(n->u.appel->identifiant);
-    int i =0;
     if(n->u.appel->parameters != NULL)
     {
       if(verify_parameters(symbol->variables, n->u.appel->parameters))
@@ -348,12 +353,11 @@ void nasm_instruction(n_instruction* n){
         nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
         do {
           nasm_exp(n->u.appel->parameters->expression);
-          i+=4;
           n->u.appel->parameters = n->u.appel->parameters->l_expression;
         } while(n->u.appel->parameters != NULL );
         
         char label_appel[STRING_SIZE];
-        sprintf(label_appel, "[_%s+%d]", n->u.appel->identifiant, i);
+        sprintf(label_appel, "[_%s]", n->u.appel->identifiant);
         nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
       }
     }
@@ -370,7 +374,7 @@ void nasm_instruction(n_instruction* n){
     if(strcmp(current_symbol, GLOBAL_SCOPE_NAME)==0 || (findSymbol(current_symbol)->type != n->u.exp->type_value))
     {
       printf("Retrun type 1 = %d\n", findSymbol(current_symbol)->type);
-      printf("Retrun type 2 =%d\n", n->u.exp->type_exp);
+      printf("Retrun type 2 = %d\n", n->u.exp->type_exp);
       exit(43);
     }
     nasm_exp(n->u.exp);
@@ -391,7 +395,14 @@ void nasm_exp(n_exp* n){
     Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
 
     char variable_adresse[STRING_SIZE];
-    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
+    if(variable->offset_with_ebp>0)
+    {
+      sprintf(variable_adresse, "[ebp+%d]", variable->offset_with_ebp);
+    }
+    else
+    {
+      sprintf(variable_adresse, "[ebp%d]", variable->offset_with_ebp);
+    }
 	  nasm_commande("mov", "eax", variable_adresse, NULL, "Recupere la variable");
     nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
 	}
