@@ -164,6 +164,7 @@ void nasm_liste_instructions(n_l_instructions *n) {
       printf("FIN INSTRUCTION\n");
 		}
 		n = n->instructions;
+    printf("n = %s\n", n);
 	} while(n != NULL );
   printf("FIN PROG");
 }
