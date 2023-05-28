@@ -158,6 +158,7 @@ void nasm_clean_local_variables(char* symbol_name)
     symbol->variables[i]=NULL;
     ++i;
   } 
+  printf("FINISH CLEANING\n");
 }
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
