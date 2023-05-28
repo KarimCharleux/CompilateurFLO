@@ -145,7 +145,7 @@ void nasm_prog(n_programme *n) {
 
   nasm_liste_instructions(n->instructions);
 
-  nasm_commande("mov", "eax", "0" , NULL, "1 est le code de SYS_EXIT");
+  nasm_commande("mov", "eax", "1" , NULL, "1 est le code de SYS_EXIT");
   nasm_commande("int", "0x80", NULL, NULL, "exit");
 }
 void nasm_liste_fonctions(n_l_fonctions *n) {
