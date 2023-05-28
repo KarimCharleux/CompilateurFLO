@@ -148,6 +148,8 @@ void nasm_clean_local_variables(char* symbol_name)
 {
   Symbol* symbol = findSymbol(symbol_name);
   printf("Clean -> %s\n",symbol->symbol_name );
+  printf("%p\n", symbol->variables);
+  printf("%p\n", symbol->variables[0]);
   int i=0;
   while (symbol->variables[i] != NULL)
   {
