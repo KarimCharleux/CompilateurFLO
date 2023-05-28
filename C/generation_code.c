@@ -269,7 +269,7 @@ void nasm_instruction(n_instruction* n){
     nasm_exp(n->u.variable.expr);
     nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
     char variable_adresse[15];
-    sprintf(variable_adresse, "[ebp+%d]", variable->offset_with_ebp);
+    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
     nasm_commande("mov", variable_adresse, "eax", NULL, "Remplace par la nouvelle valeur");
   }
   if(n->type_instruction == i_declaration)
@@ -325,7 +325,7 @@ void nasm_exp(n_exp* n){
     Variable* variable = findVariable(n->u.identifiant, symbol->variables);
 
     char variable_adresse[15];
-    sprintf(variable_adresse, "[ebp+%d]", variable->offset_with_ebp);
+    sprintf(variable_adresse, "[ebp-%d]", variable->offset_with_ebp);
 	  nasm_commande("mov", "eax", variable_adresse, NULL, "Recupere la variable");
     nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
 	}
