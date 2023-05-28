@@ -169,6 +169,7 @@ void nasm_instruction(n_instruction* n){
 	if(n->type_instruction == i_ecrire){
 		nasm_exp(n->u.exp);
 		nasm_commande("pop", "eax", NULL, NULL, "depile sur eax");
+    printf("OK ECRIRE\n");
 		nasm_commande("call", "iprintLF", NULL, NULL, "envoie eax sur la sortie standard");
     printf("OK ECRIRE\n");
 	}
