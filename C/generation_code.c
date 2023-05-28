@@ -355,18 +355,12 @@ void nasm_instruction(n_instruction* n){
           nasm_exp(n->u.appel->parameters->expression);
           n->u.appel->parameters = n->u.appel->parameters->l_expression;
         } while(n->u.appel->parameters != NULL );
-        
-        char label_appel[STRING_SIZE];
-        sprintf(label_appel, "[_%s]", n->u.appel->identifiant);
-        nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
       }
     }
-    else
-    {
-      char label_appel[STRING_SIZE];
-      sprintf(label_appel, "_%s", n->u.appel->identifiant);
-      nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
-    }
+    
+    char label_appel[STRING_SIZE];
+    sprintf(label_appel, "_%s", n->u.appel->identifiant);
+    nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
     nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");  
   }
   if(n->type_instruction == i_retour)
