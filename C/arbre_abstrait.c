@@ -66,6 +66,8 @@ void afficher_n_variable(n_variable* variable, int indent)
 void afficher_n_programme(n_programme* prog,int indent){
 	afficher("<programme>",indent);
 	afficher_n_l_fonctions(prog->fonctions,indent+1);
+	afficher_n_l_instructions(prog->instructions,indent+1);
+
 	afficher("</programme>",indent);
 }
 void afficher_n_l_fonctions(n_l_fonctions* fonctions ,int indent){

@@ -4,4 +4,5 @@ entier fibo(entier n){
 
 ;
 
-fibo(1);
+entier x = fibo(1);
+ecrire(x);

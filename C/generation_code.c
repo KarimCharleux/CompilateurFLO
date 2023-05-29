@@ -216,8 +216,6 @@ void nasm_fonction(n_fonction* n)
   nasm_commande("mov", "ebp", "esp", NULL, "Met a jour ebp");
 
   nasm_liste_instructions(n->l_instructions);
-  nasm_clean_local_variables(n->identifiant);
-  nasm_commande("ret", NULL, NULL, NULL, "Return");
   current_symbol = GLOBAL_SCOPE_NAME;
 }
 void nasm_clean_local_variables(char* symbol_name)
@@ -234,7 +232,14 @@ void nasm_clean_local_variables(char* symbol_name)
     symbol->current_memory_used -=4;
     ++i;
   } 
+  for(int i=0; i<symbol->nb_built_in_parameters; ++i)
+  {
+    char string[40];
+    sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
+    nasm_commande("pop", "eax", NULL, NULL, string);
+  } 
 }
+
 void nasm_liste_instructions(n_l_instructions *n) {
 	do {
 		if (n->instruction != NULL){
