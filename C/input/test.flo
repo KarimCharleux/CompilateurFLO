@@ -1,11 +1,14 @@
 entier fibo(entier n){
 	si(n<=1){
+        ecrire(1);
 		retourner 1;
 	}
+    ecrire(0);
 	retourner fibo(n-1)+fibo(n-2);
 }
 
 ;
 
 fibo(1);
+ecrire(2);
 fibo(2);
