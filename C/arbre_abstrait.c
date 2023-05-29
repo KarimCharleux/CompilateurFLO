@@ -131,6 +131,18 @@ void afficher_n_instruction(n_instruction* instruction ,int indent){
 	{
 		afficher_n_variable(instruction->u.variable, indent+1);
 	}	
+	if ( instruction->type_instruction == i_appel_inst)
+	{
+		afficher("<  Appel  >",indent);
+		afficher(instruction->u.appel->identifiant ,indent+1);
+		afficher("</ Appel  >",indent);
+	}
+	if (instruction->type_instruction == i_retour)
+	{
+		afficher("<  <--  >",indent);
+		afficher_n_exp(instruction->u.exp,indent+1);
+		afficher("</ <--  >",indent);
+	}
 }
 void afficher_n_exp(n_exp* exp ,int indent){
 	if (exp->type_exp == i_operation){
@@ -147,7 +159,13 @@ void afficher_n_exp(n_exp* exp ,int indent){
 		afficher("<variable>" , indent);
 		afficher(exp->u.variable->identifiant,indent+1);
 		afficher("</variable>" , indent);
+	} else if (exp->type_exp == i_appel_expr)
+	{
+		afficher("<appel>" , indent);
+		afficher(exp->u.appel->identifiant,indent+1);
+		afficher("</appel>" , indent);
 	}
+	
 }
 void afficher_n_operation(n_operation* operation ,int indent){
 	afficher("<operation>",indent);

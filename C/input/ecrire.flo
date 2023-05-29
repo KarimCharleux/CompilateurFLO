@@ -5,5 +5,7 @@ entier main()
     ecrire(Faux);
 }
 
+;
+
 main();
 

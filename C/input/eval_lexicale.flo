@@ -11,7 +11,7 @@ entier max(entier entier1, entier entier2,entier entier3){
 	}
 	retourner res;
 }
-
+;
 booleen continuer = Vrai;
 booleen arreter = Faux;
 tantQue(continuer ou non arreter){

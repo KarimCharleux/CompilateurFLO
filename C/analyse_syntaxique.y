@@ -33,6 +33,7 @@ n_programme* arbre_abstrait;
 //Symboles terminaux qui seront fournis par yylex(), ordre non important
 
 %token <identifiant> IDENTIFIANT
+%token <entier> ENTIER
 %token PLUS
 %token FOIS
 %token DIVISER
@@ -45,7 +46,6 @@ n_programme* arbre_abstrait;
 %token PARENTHESE_OUVRANTE
 %token PARENTHESE_FERMANTE
 %token POINT_VIRGULE
-%token <entier> ENTIER
 %token ECRIRE
 %token FIN 0
 %token SI
@@ -63,7 +63,6 @@ n_programme* arbre_abstrait;
 %token ACCOLADE_FERMANTE
 %token ET
 %token RETOURNER
-%token <type> TYPE
 
 //completer
 
@@ -85,6 +84,7 @@ n_programme* arbre_abstrait;
 %type <exp> boolean
 %type <exp> somme
 %type <appel> appel
+%token <type> TYPE
 
 %%
 
@@ -96,8 +96,8 @@ n_programme* arbre_abstrait;
 //                                   
 
 
-prog: listeFonctions listeInstructions {
-    arbre_abstrait =creer_n_programme($1, $2, NULL);
+prog: listeFonctions POINT_VIRGULE listeInstructions {
+    arbre_abstrait =creer_n_programme($1, $3, NULL);
 } 
 
 listeInstructions: instruction {
@@ -141,6 +141,9 @@ ecrire: ECRIRE PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE {
 }
 instruction: lire POINT_VIRGULE{
 	$$ =$1;
+}
+facteur: lire{
+    $$ =n_appel_to_n_expression(creer_n_appel("lire", NULL));
 }
 lire: LIRE PARENTHESE_OUVRANTE PARENTHESE_FERMANTE {
 	$$ =creer_n_lire();
@@ -208,7 +211,7 @@ appel: IDENTIFIANT PARENTHESE_OUVRANTE listeExpression PARENTHESE_FERMANTE {
 instruction: appel POINT_VIRGULE{
     $$ = n_appel_to_n_instruction($1);
 }
-expr: appel{
+facteur: appel{
     $$ = n_appel_to_n_expression($1);
 }
 

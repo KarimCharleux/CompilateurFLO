@@ -111,22 +111,29 @@ void printSymbol(char* symbol_name)
   }
 }
 
-int verify_parameters(Variable* variableTable[], n_l_expression* n_l_expression)
+void verify_parameters(Variable* variableTable[], n_l_expression* l_expression)
 {
   int i=0;
   do{
-    if(n_l_expression==NULL || n_l_expression->expression->type_value != variableTable[i]->type)
+    if(l_expression==NULL || l_expression->expression->type_value != variableTable[i]->type)
     {
-      return 0;
+      printf("EXIT FAILURE -- BAD FONCTION ENTRY\n");
+      printf("list exp = %p\n", l_expression);
+      printf("expressi = %p\n", l_expression->expression);
+      printf("variable = %p\n", variableTable[i]);
+      printf("Type expressi = %d\n", l_expression->expression->type_value);
+      printf("Type varTable = %d\n", variableTable[i]->type);
+      exit(EXIT_FAILURE);
     }
     ++i;
-    n_l_expression = n_l_expression->l_expression;
+    l_expression = l_expression->l_expression;
   }while (variableTable[i]!= NULL);
-  if(n_l_expression == NULL)
+  if(l_expression == NULL)
   {
-    return 1;
+    return;
   }
-  return 0;
+  printf("Trop de parametres\n");
+  exit(EXIT_FAILURE);
 }
 
 
@@ -211,6 +218,7 @@ void nasm_fonction(n_fonction* n)
   nasm_liste_instructions(n->l_instructions);
   nasm_clean_local_variables(n->identifiant);
   nasm_commande("ret", NULL, NULL, NULL, "Return");
+  current_symbol = GLOBAL_SCOPE_NAME;
 }
 void nasm_clean_local_variables(char* symbol_name)
 {
@@ -349,43 +357,41 @@ void nasm_instruction(n_instruction* n){
   }
   if(n->type_instruction == i_retour)
   { 
+    nasm_exp(n->u.exp);
     if(strcmp(current_symbol, GLOBAL_SCOPE_NAME)==0 || (findSymbol(current_symbol)->type != n->u.exp->type_value))
     {
       printf("Retrun type 1 = %d\n", findSymbol(current_symbol)->type);
-      printf("Retrun type 2 = %d\n", n->u.exp->type_exp);
+      printf("Retrun type 2 = %d\n", n->u.exp->type_value);
       exit(43);
     }
-    nasm_exp(n->u.exp);
     nasm_commande("pop", "eax", NULL, NULL, "Passe le retour par eax");
-    current_symbol = GLOBAL_SCOPE_NAME;
+    nasm_clean_local_variables(current_symbol);
+    nasm_commande("ret", NULL, NULL, NULL, "Return");
   }
 }
-void nasm_appel(n_appel* appel)
+enum Type nasm_appel(n_appel* appel)
 {
    Symbol* symbol = findSymbol(appel->identifiant);
     if(appel->parameters != NULL)
     {
-      if(verify_parameters(symbol->variables, appel->parameters))
-      {
-        nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
-        do {
-          nasm_exp(appel->parameters->expression);
-          appel->parameters = appel->parameters->l_expression;
-        } while(appel->parameters != NULL );
-      }
-      else{
-        exit(EXIT_FAILURE);
-      }
+      nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
+      n_l_expression* parameters = appel->parameters;
+      do {
+        nasm_exp(parameters->expression);
+        parameters = parameters->l_expression;
+      } while(parameters != NULL );
+      verify_parameters(symbol->variables, appel->parameters);
     }
-
     char label_appel[STRING_SIZE];
     sprintf(label_appel, "_%s", appel->identifiant);
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
     nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");
+    
+    return symbol->type; 
 }
 void nasm_exp(n_exp* n){
 	if (n->type_exp == i_operation){
-		nasm_operation(n->u.operation);
+		n->type_value =  nasm_operation(n->u.operation);
 	} else if (n->type_exp == i_value){
 	      char buffer[STRING_SIZE];
 	      sprintf(buffer, "%d", n->u.valeur);
@@ -394,7 +400,7 @@ void nasm_exp(n_exp* n){
   else if (n->type_exp == i_variable){
     Symbol* symbol = findSymbol(current_symbol);
     Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
-
+    n->type_value = variable->type;
     char variable_adresse[STRING_SIZE];
     if(variable->offset_with_ebp>0)
     {
@@ -409,15 +415,23 @@ void nasm_exp(n_exp* n){
 	}
   else if (n->type_exp == i_appel_expr)
   {
-    nasm_appel(n->u.appel);
-    nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
+    if(strcmp(n->u.appel->identifiant, "lire")==0)
+    {
+      nasm_commande("mov", "eax", "sinput", NULL, "charge l’adresse sinput");
+      nasm_commande("call", "readline", NULL, NULL, "appelle readline de io.asm");
+      nasm_commande("call", "atoi", NULL, NULL, "appelle atoi de io.asm");
+      nasm_commande("push", "eax", NULL, NULL, "empile eax");
+    }
+    else{
+      n->type_value = nasm_appel(n->u.appel);
+      nasm_commande("push", "eax", NULL, NULL, "Empile le resultat");
+    }
   }
   
 }
-void nasm_operation(n_operation* n){
+enum Type nasm_operation(n_operation* n){
   nasm_exp(n->exp1);
   nasm_exp(n->exp2);
-
   nasm_commande("pop", "ebx", NULL, NULL, "depile la seconde operande dans ebx");
   nasm_commande("pop", "eax", NULL, NULL, "depile la permière operande dans eax");
   if (n->type_operation == '+'){
@@ -469,4 +483,5 @@ void nasm_operation(n_operation* n){
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   nasm_commande("push", "eax" , NULL, NULL, "empile le résultat");  
+  return n->exp1->type_value;
 }

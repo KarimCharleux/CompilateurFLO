@@ -3,4 +3,6 @@ entier main()
     lire();
 }
 
+;
+
 main();
