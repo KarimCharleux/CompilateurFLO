@@ -227,7 +227,7 @@ void nasm_clean_local_variables(char* symbol_name)
   {
     char string[40];
     sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
-    nasm_commande("pop", "ebx", NULL, NULL, string);
+    nasm_commande("add", "esp", "4", NULL, string);
     symbol->variables[i]=NULL;
     symbol->current_memory_used -=4;
     ++i;
@@ -240,7 +240,7 @@ void nasm_clean_fonction_arguments(char* symbol_name)
   {
     char string[40];
     sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
-    nasm_commande("pop", "ebx", NULL, NULL, string);
+    nasm_commande("add", "esp", "4", NULL, string);
   } 
 }
 
