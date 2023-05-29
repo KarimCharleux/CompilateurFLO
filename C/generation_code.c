@@ -232,6 +232,10 @@ void nasm_clean_local_variables(char* symbol_name)
     symbol->current_memory_used -=4;
     ++i;
   } 
+}
+void nasm_clean_fonction_arguments(char* symbol_name)
+{
+  Symbol* symbol = findSymbol(symbol_name);
   for(int i=0; i<symbol->nb_built_in_parameters; ++i)
   {
     char string[40];
@@ -390,6 +394,7 @@ enum Type nasm_appel(n_appel* appel)
     char label_appel[STRING_SIZE];
     sprintf(label_appel, "_%s", appel->identifiant);
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
+    nasm_clean_fonction_arguments(appel->identifiant);
     nasm_commande("pop", "ebp", NULL, NULL, "Recupere ebp");
     
     return symbol->type; 
