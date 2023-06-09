@@ -126,7 +126,6 @@ void verify_parameters(Variable* variableTable[], n_l_expression* l_expression)
       printf("EXIT FAILURE -- BAD FONCTION ENTRY\n");
       printf("i = %d\n", i);
       printf("expressi = %d\n", l_expression->expression->type_exp);
-      printf("expressi = %d\n", l_expression->expression->u.valeur);
       printf("variable = %s\n", variableTable[i]->variable_name);
       printf("Type expressi = %d\n", l_expression->expression->type_value);
       printf("Type varTable = %d\n", variableTable[i]->type);
@@ -141,6 +140,27 @@ void verify_parameters(Variable* variableTable[], n_l_expression* l_expression)
   }
   printf("Trop de parametres\n");
   exit(EXIT_FAILURE);
+}
+
+n_l_expression* reverse_parameters(n_l_expression* parameters)
+{
+    n_l_expression* newHead = NULL;
+    n_l_expression* current = parameters;
+
+    while (current != NULL) {
+        // Create a new node with the same data
+        n_l_expression* newNode = malloc(sizeof(n_l_expression));
+        newNode->expression = current->expression;
+        newNode->l_expression = current->l_expression;
+
+        // Insert the new node at the beginning of the new list
+        newNode->l_expression = newHead;
+        newHead = newNode;
+
+        current = current->l_expression;
+    }
+
+    return newHead;
 }
 
 
@@ -403,7 +423,7 @@ enum Type nasm_appel(n_appel* appel)
     nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
     if(appel->parameters != NULL)
     {
-      n_l_expression* parameters = appel->parameters;
+      n_l_expression* parameters = reverse_parameters(appel->parameters);
       do {
         nasm_exp(parameters->expression);
         parameters = parameters->l_expression;
