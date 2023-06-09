@@ -12,6 +12,8 @@ int if_label_count= 0;
 int else_label_count= 0;
 int fin_label_count= 0;
 int label_count= 0;
+int tant_que_label_count=0;
+int fin_tant_que_label_count=0;
 char* current_symbol = GLOBAL_SCOPE_NAME;
 Symbol* symbolTable[MAX_SYMBOL_TABLE_SIZE] = {NULL};
 
@@ -81,7 +83,7 @@ Variable* findVariable(char* identifiant, Variable* variableTable[])
     }
     ++i;
   }while (variableTable[i]!= NULL);
-  printf("Can t find variable %s in %s\n", identifiant);
+  printf("Can t find variable %s\n", identifiant);
   printSymbols();
   return NULL;
 } 
@@ -284,6 +286,9 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_else, "else%d", else_label_count);
     char label_endif[STRING_SIZE];
     sprintf(label_endif, "endif%d", fin_label_count);
+    ++if_label_count;
+    ++else_label_count;
+    ++fin_label_count;
 
     nasm_exp(n->u.condition->evaluation->expr);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
@@ -297,41 +302,41 @@ void nasm_instruction(n_instruction* n){
     {
       nasm_commande("jnz", label_endif, NULL, NULL, "Aller a la fin");
     }
-    
-    sprintf(label_if, "if%d:", label_count);
+    sprintf(label_if, "%s:", label_if);
     nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
     nasm_liste_instructions(n->u.condition->l_instructions);
     nasm_commande("jmp", label_endif, NULL, NULL, "Aller au si");
 
     if(n->u.condition->l_instructions_2!=NULL)
     {
-      sprintf(label_else, "else%d:", label_count);
+      sprintf(label_else, "%s:", label_else);
       nasm_commande(label_else, NULL, NULL, NULL, "Aller dans le sinon");
       nasm_liste_instructions(n->u.condition->l_instructions_2);
     }
-    sprintf(label_endif, "endif%d:", fin_label_count);
+    sprintf(label_endif, "%s:", label_endif);
     nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
-
 	}
   if(n->type_instruction == i_boucle)
   {
     char label_tantque[STRING_SIZE];
-    char tantque[STRING_SIZE];
-    sprintf(tantque, "TantQue%d", if_label_count);
     char label_end_tantque[STRING_SIZE];
-    sprintf(label_end_tantque, "finTantQue%d", fin_label_count);
-
-    sprintf(label_tantque, "TantQue%d:", label_count);
-    nasm_commande(label_tantque, NULL, NULL, NULL, "Entrer dans le tantque");
+    sprintf(label_end_tantque, "finTantQue%d", fin_tant_que_label_count);
+    sprintf(label_tantque, "TantQue%d", tant_que_label_count);
+    ++fin_tant_que_label_count;
+    ++tant_que_label_count;
+   
+    char label_tantque2[STRING_SIZE];
+    sprintf(label_tantque2, "%s:", label_tantque);
+    nasm_commande(label_tantque2, NULL, NULL, NULL, "Entrer dans le tantque");
     nasm_exp(n->u.boucle->expr);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
     nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
 
     nasm_liste_instructions(n->u.boucle->l_instructions);
-    nasm_commande("jmp", tantque, NULL, NULL, "Aller au si");
+    nasm_commande("jmp", label_tantque, NULL, NULL, "Aller au si");
     
-    sprintf(label_end_tantque, "finTantQue%d:", label_count);
+    sprintf(label_end_tantque, "%s:", label_end_tantque);
     nasm_commande(label_end_tantque, NULL, NULL, NULL, "Sortie du tantque");
 	}
   if(n->type_instruction == i_affectation)
@@ -453,8 +458,11 @@ void nasm_exp(n_exp* n){
 }
 enum Type nasm_operation(n_operation* n){
   nasm_exp(n->exp1);
-  nasm_exp(n->exp2);
-  nasm_commande("pop", "ebx", NULL, NULL, "depile la seconde operande dans ebx");
+  if(n->exp2!=NULL)
+  {
+    nasm_exp(n->exp2);
+    nasm_commande("pop", "ebx", NULL, NULL, "depile la seconde operande dans ebx");
+  }
   nasm_commande("pop", "eax", NULL, NULL, "depile la permière operande dans eax");
   if (n->type_operation == '+'){
       nasm_commande("add", "eax", "ebx", NULL, "operation +");
@@ -463,10 +471,20 @@ enum Type nasm_operation(n_operation* n){
     nasm_commande("imul", "eax", "ebx", NULL, "operation *");
   }
   else if(n->type_operation == '-'){
-    nasm_commande("sub", "eax", "ebx", NULL, "operation -");
+    if(n->exp2!=NULL)
+    {
+      nasm_commande("sub", "eax", "ebx", NULL, "operation -");
+    }
+    else
+    {
+      nasm_commande("mov", "ebx", "0", NULL, "Met 0 dans ebx");
+      nasm_commande("sub", "ebx", "eax", NULL, "operation - sur lui meme");
+      nasm_commande("mov", "eax", "ebx", NULL, "envoi ebx dans eax");
+    }
   }
   else if(n->type_operation == '/'){
-    nasm_commande("idiv", "eax", "ebx", NULL, "operation /");
+    nasm_commande("mov", "edx", "0", NULL, "Met edx a 0");
+    nasm_commande("idiv", "ebx", NULL, NULL, "operation /");
   }
   else if(n->type_operation == '%'){
     nasm_commande("mov", "edx", "0", NULL, "");
@@ -502,6 +520,14 @@ enum Type nasm_operation(n_operation* n){
   else if(n->type_operation == 's'){
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setge", "al", NULL, NULL, "met 1 dans al si eax >= ebx");
+    nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
+  }
+  else if(n->type_operation == '!'){
+    nasm_commande("not", "eax", NULL, NULL, "Negation du boolean");
+  }
+  else if(n->type_operation == 'd'){
+    nasm_commande("cmp", "eax", "ebx", NULL, "compare");
+    nasm_commande("setne", "al", NULL, NULL, "met 1 dans al si eax == ebx");
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   nasm_commande("push", "eax" , NULL, NULL, "empile le résultat");  

@@ -61,29 +61,30 @@ extern int yydebug;
     DIVISER = 262,                 /* DIVISER  */
     MOINS = 263,                   /* MOINS  */
     EQUAL = 264,                   /* EQUAL  */
-    INFERIEUR = 265,               /* INFERIEUR  */
-    SUPERIEUR = 266,               /* SUPERIEUR  */
-    SUPERIEUR_OU_EQUAL = 267,      /* SUPERIEUR_OU_EQUAL  */
-    INFERIEUR_OU_EQUAL = 268,      /* INFERIEUR_OU_EQUAL  */
-    PARENTHESE_OUVRANTE = 269,     /* PARENTHESE_OUVRANTE  */
-    PARENTHESE_FERMANTE = 270,     /* PARENTHESE_FERMANTE  */
-    POINT_VIRGULE = 271,           /* POINT_VIRGULE  */
-    ECRIRE = 272,                  /* ECRIRE  */
-    SI = 273,                      /* SI  */
-    SINON = 274,                   /* SINON  */
-    VRAI = 275,                    /* VRAI  */
-    FAUX = 276,                    /* FAUX  */
-    TANTQUE = 277,                 /* TANTQUE  */
-    OU = 278,                      /* OU  */
-    NON = 279,                     /* NON  */
-    LIRE = 280,                    /* LIRE  */
-    MODULO = 281,                  /* MODULO  */
-    VIRGULE = 282,                 /* VIRGULE  */
-    ACCOLADE_OUVRANTE = 283,       /* ACCOLADE_OUVRANTE  */
-    ACCOLADE_FERMANTE = 284,       /* ACCOLADE_FERMANTE  */
-    ET = 285,                      /* ET  */
-    RETOURNER = 286,               /* RETOURNER  */
-    TYPE = 287                     /* TYPE  */
+    DIFFERENT = 265,               /* DIFFERENT  */
+    INFERIEUR = 266,               /* INFERIEUR  */
+    SUPERIEUR = 267,               /* SUPERIEUR  */
+    SUPERIEUR_OU_EQUAL = 268,      /* SUPERIEUR_OU_EQUAL  */
+    INFERIEUR_OU_EQUAL = 269,      /* INFERIEUR_OU_EQUAL  */
+    PARENTHESE_OUVRANTE = 270,     /* PARENTHESE_OUVRANTE  */
+    PARENTHESE_FERMANTE = 271,     /* PARENTHESE_FERMANTE  */
+    POINT_VIRGULE = 272,           /* POINT_VIRGULE  */
+    ECRIRE = 273,                  /* ECRIRE  */
+    SI = 274,                      /* SI  */
+    SINON = 275,                   /* SINON  */
+    VRAI = 276,                    /* VRAI  */
+    FAUX = 277,                    /* FAUX  */
+    TANTQUE = 278,                 /* TANTQUE  */
+    OU = 279,                      /* OU  */
+    NON = 280,                     /* NON  */
+    LIRE = 281,                    /* LIRE  */
+    MODULO = 282,                  /* MODULO  */
+    VIRGULE = 283,                 /* VIRGULE  */
+    ACCOLADE_OUVRANTE = 284,       /* ACCOLADE_OUVRANTE  */
+    ACCOLADE_FERMANTE = 285,       /* ACCOLADE_FERMANTE  */
+    ET = 286,                      /* ET  */
+    RETOURNER = 287,               /* RETOURNER  */
+    TYPE = 288                     /* TYPE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -111,7 +112,7 @@ union YYSTYPE
     n_condition* condition;
     n_evaluation* evaluation;
 
-#line 115 "symboles.h"
+#line 116 "symboles.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

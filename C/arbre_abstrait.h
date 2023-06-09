@@ -6,7 +6,7 @@
   * exp -> expression (arithmétique)
 */
 
-enum Type {none = -1, boolean = 0, entier = 1}; 
+enum Type {none = -1, booleen = 0, entier = 1}; 
 
 /* -----------------------------------------------------------------------------------------------------------------
 #  ____  _                   _                       
@@ -201,7 +201,8 @@ n_instruction* n_condition_to_n_instruction(n_condition* condition);
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
 n_exp* n_variable_to_n_expression(n_variable* variable);
 n_exp* n_appel_to_n_expression(n_appel* appel);
-n_exp* creer_n_entier(int valeur);
+n_exp* creer_n_entier(int valeur, int sign);
 n_exp* creer_n_boolean(int valeur);
 n_exp* creer_n_operation(char type_operation, n_exp* exp1, n_exp* exp2);
+n_exp* transform_n_expression(n_exp* expr, char operation);
 

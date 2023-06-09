@@ -44,7 +44,7 @@ void afficher_boolean(int valeur,int indent){
 	printf(" "); 
 	
 	}
-	printf("[Boolean:%d]\n",valeur);
+	printf("[booleen:%d]\n",valeur);
 }
 void afficher_n_variable(n_variable* variable, int indent)
 {
@@ -106,14 +106,17 @@ void afficher_n_l_declaration(n_l_declaration* parametres, int indent)
 	afficher("</liste_parametres>",indent);
 }
 void afficher_n_l_instructions(n_l_instructions* instructions ,int indent){
-	afficher("<liste_instuctions>",indent);
-	do {
-		if (instructions->instruction != NULL){
-			afficher_n_instruction(instructions->instruction,indent+1);
-			instructions = instructions->instructions;
-		}
-	} while(instructions != NULL );
-	afficher("</liste_instructions>",indent);
+	if(instructions!=NULL)
+	{
+		afficher("<liste_instuctions>",indent);
+		do {
+			if (instructions->instruction != NULL){
+				afficher_n_instruction(instructions->instruction,indent+1);
+				instructions = instructions->instructions;
+			}
+		} while(instructions != NULL );
+		afficher("</liste_instructions>",indent);
+	}
 }
 void afficher_n_instruction(n_instruction* instruction ,int indent){
 	if(instruction->type_instruction == i_ecrire){
@@ -152,7 +155,7 @@ void afficher_n_exp(n_exp* exp ,int indent){
 	if (exp->type_exp == i_operation){
 		afficher_n_operation(exp->u.operation,indent);
 	} else if (exp->type_exp == i_value){
-		if(exp->type_value==boolean)
+		if(exp->type_value==booleen)
 		{
 			afficher_entier(exp->u.valeur,indent);
 		}
@@ -185,7 +188,10 @@ void afficher_n_operation(n_operation* operation ,int indent){
 	afficher("<operation>",indent);
 	afficher_n_exp(operation->exp1,indent+1);
 	afficher_caractere(operation->type_operation,indent+1);
-	afficher_n_exp(operation->exp2,indent+1);
+	if(operation->exp2 != NULL)
+	{
+		afficher_n_exp(operation->exp2,indent+1);
+	}
 	afficher("</operation>",indent);
 }
 
@@ -420,23 +426,36 @@ n_exp* n_appel_to_n_expression(n_appel* appel)
 {
 	n_exp* n = malloc(sizeof(n_exp));
 	n->type_exp = i_appel_expr;
-	n->type_value = none;
+	if(strcmp(appel->identifiant, "lire")==0)
+	{
+		n->type_value = entier;
+	}
+	else{
+		n->type_value = none;
+	}
 	n->u.appel = appel;
 
 	return n;
 }
-n_exp* creer_n_entier(int valeur){
+n_exp* creer_n_entier(int valeur, int sign){
   n_exp* n = malloc(sizeof(n_exp));
   n->type_exp = i_value;
   n->type_value = entier;
-  n->u.valeur = valeur;
+  if(sign > 0)
+  {
+	n->u.valeur = valeur;
+  }
+  else
+  {
+	n->u.valeur = -1*valeur;
+  }
   return n;
 }
 n_exp* creer_n_boolean(int valeur)
 {
 	n_exp* n = malloc(sizeof(n_exp));
 	n->type_exp = i_value;
-	n->type_value = boolean;
+	n->type_value = booleen;
 	n->u.valeur = valeur;
   	return n;
 
@@ -446,7 +465,7 @@ n_exp* creer_n_operation(char type_operation,n_exp* exp1,n_exp* exp2){
   n_operation* n_op = malloc(sizeof(n_operation));
   n->u.operation = n_op;
   n->type_exp = i_operation;
-  n->type_value = exp2->type_value;
+  n->type_value = exp1->type_value;
   n_op->type_operation = type_operation;
   n_op->exp1 = exp1;
   n_op->exp2 = exp2;

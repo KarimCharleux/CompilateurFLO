@@ -25,6 +25,7 @@ espace               [ \t\r\n]
 "/"                  { return DIVISER;             }
 "-"                  { return MOINS;               }
 "="                  { return EQUAL;               }
+"!="                 { return DIFFERENT;            }
 "<"                  { return INFERIEUR;           }
 ">"                  { return SUPERIEUR;           }
 ">="                 { return SUPERIEUR_OU_EQUAL;  }
@@ -46,9 +47,10 @@ espace               [ \t\r\n]
 "tantque"            { return TANTQUE;             }
 "ou"                 { return OU;                  }
 "non"                { return NON;                 }
+"!"                  { return NON;                 }
 "lire"               { return LIRE;                }
 "retourner"          { return RETOURNER;           }
-"boolean"            { yylval.entier=0; return TYPE;  }
+"booleen"            { yylval.entier=0; return TYPE;  }
 "entier"             { yylval.entier=1; return TYPE;  }
 "%"                  { return MODULO;              }
 {entier}             { yylval.entier=atoi(yytext); return ENTIER;}
@@ -70,10 +72,10 @@ int yywrap(){
 //  prend le int qui correspond au caractere defini
 
 
-int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE, SI, SINON, VRAI, FAUX, TANTQUE, OU, NON, LIRE, MODULO, ACCOLADE_OUVRANTE, ACCOLADE_FERMANTE, EQUAL, VIRGULE, SUPERIEUR_OU_EQUAL, INFERIEUR_OU_EQUAL, ET, OU, INFERIEUR, SUPERIEUR, DIVISER, MOINS, RETOURNER};
-char *str_token[] = {"+","*","(",")", "ecrire", ";", "si", "sinon", "vrai", "faux", "tantque", "||", "!", "lire", "%", "{", "}", "=", ",", ">=", "<=", "&", "|", "<", ">", "/", "-", "<-"};
+int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE, SI, SINON, VRAI, FAUX, TANTQUE, OU, NON, LIRE, MODULO, ACCOLADE_OUVRANTE, ACCOLADE_FERMANTE, EQUAL, VIRGULE, SUPERIEUR_OU_EQUAL, INFERIEUR_OU_EQUAL, ET, OU, INFERIEUR, SUPERIEUR, DIVISER, MOINS, RETOURNER, DIFFERENT};
+char *str_token[] = {"+","*","(",")", "ecrire", ";", "si", "sinon", "vrai", "faux", "tantque", "||", "!", "lire", "%", "{", "}", "=", ",", ">=", "<=", "&", "|", "<", ">", "/", "-", "<-","!="};
 
-int nbMotsClefs = 29;
+int nbMotsClefs = 30;
 
 void nom_token( int token, char *nom, char *valeur ) {   
 

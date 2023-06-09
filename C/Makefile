@@ -1,4 +1,4 @@
-INPUT = $(basename $(notdir $(wildcard input/*.flo)))
+INPUT = $(basename $(notdir $(wildcard bad_input/*.flo)))
 
 assembleur_vers_exercutable: generation_code_nasm
 	for a in $(INPUT); do echo "Assemblage: " $${a}; nasm -g output/nasm/$${a}.nasm -f elf -o output/object/$${a}.o; ld -m elf_i386   -s -o output/bin/$${a} output/object/$${a}.o; done;

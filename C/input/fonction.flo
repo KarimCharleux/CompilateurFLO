@@ -3,13 +3,13 @@ entier maFonction()
     ecrire(5);
     entier x = lire();
     x=7;
-    boolean y = Vrai;
+    booleen y = Vrai;
     y = Faux;
     ecrire(x);
     retourner 5;
 }
 
-boolean maFonction2(entier x, entier y)
+booleen maFonction2(entier x, entier y)
 {
    ecrire(x+y);
 }

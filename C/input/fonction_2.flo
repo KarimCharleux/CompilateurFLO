@@ -4,8 +4,11 @@ entier f(){
 entier g(){
  retourner 4;
 }
+
+
+
 booleen h(){
- retourner Vrai;
+    retourner Vrai;
 }
 ecrire(f()+g());
 ecrire(non h());

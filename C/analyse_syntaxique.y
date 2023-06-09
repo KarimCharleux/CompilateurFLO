@@ -42,6 +42,7 @@ n_programme* arbre_abstrait;
 %token DIVISER
 %token MOINS
 %token EQUAL
+%token DIFFERENT
 %token INFERIEUR
 %token SUPERIEUR
 %token SUPERIEUR_OU_EQUAL
@@ -85,7 +86,7 @@ n_programme* arbre_abstrait;
 %type <variable> affectation
 %type <variable> declarationAffectation
 %type <exp> produit
-%type <exp> boolean
+%type <exp> booleen
 %type <exp> booleanPrime
 %type <exp> somme
 %type <appel> appel
@@ -180,6 +181,10 @@ condition: evaluation ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE list
 {
     $$ = creer_n_condition(0, $1, $3, $5, $8);
 }
+condition: evaluation ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE listSinonSi
+{
+    $$ = creer_n_condition(0, $1, $3, $5, NULL);
+}
 instruction: TANTQUE PARENTHESE_OUVRANTE booleanPrime PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
 {
     $$ = creer_n_boucle($3, $6);
@@ -234,9 +239,7 @@ instruction: declaration POINT_VIRGULE {
 instruction: declarationAffectation POINT_VIRGULE {
     $$ = n_variable_to_n_instruction($1);
 }
-facteur: variable{
-    $$ = n_variable_to_n_expression($1);
-}
+
 
 // APPEL & RETOUR -----------------------------------------------------------------------------------------------------------------
 
@@ -272,7 +275,13 @@ facteur: PARENTHESE_OUVRANTE expr PARENTHESE_FERMANTE {
     $$ =$2 ;
 }
 facteur: ENTIER{
-    $$ = creer_n_entier($1);
+    $$ = creer_n_entier($1, 1);
+}
+facteur: MOINS facteur{
+    $$ = creer_n_operation('-',$2, NULL);
+}
+facteur: variable{
+    $$ = n_variable_to_n_expression($1);
 }
 
 // PRODUIT -----------------------------------------------------------------------------------------------------------------
@@ -302,18 +311,20 @@ somme: somme MODULO produit{
     $$ =creer_n_operation('%', $1 , $3);
 }
 
-// BOOLEAN -----------------------------------------------------------------------------------------------------------------
+// booleen -----------------------------------------------------------------------------------------------------------------
 
-boolean: somme{
+booleen: somme{
     $$ = $1;
 }
-boolean: VRAI {
+booleen: VRAI {
     $$ = creer_n_boolean(1);
 }
-boolean: FAUX {
+booleen: FAUX {
     $$ = creer_n_boolean(0);
 }
-boolean: NON boolean {}
+booleen: NON booleen {
+    $$ = creer_n_operation('!', $2, NULL);
+}
 
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
 
@@ -336,29 +347,32 @@ listeExpression: expr VIRGULE listeExpression {
 //  \____\___/|_| |_| |_| .__/ \__,_|_|  \__,_|_|___/\___/|_| |_|___/
 //                      |_|                                          
 
-booleanPrime: booleanPrime OU boolean {
+booleanPrime: booleanPrime OU booleen {
     $$ =creer_n_operation('|', $1 , $3);
 }
-booleanPrime: booleanPrime ET boolean {
+booleanPrime: booleanPrime ET booleen {
     $$ =creer_n_operation('&', $1, $3);
 }
-booleanPrime: boolean{
+booleanPrime: booleen{
     $$ = $1;
 }
-boolean: somme INFERIEUR somme {
+booleen: somme INFERIEUR somme {
     $$ =creer_n_operation('<', $1, $3);
 }
-boolean: somme SUPERIEUR somme {
+booleen: somme SUPERIEUR somme {
     $$ =creer_n_operation('>', $1, $3);
 }
-boolean: somme INFERIEUR_OU_EQUAL somme {
+booleen: somme INFERIEUR_OU_EQUAL somme {
     $$ =creer_n_operation('i', $1, $3);
 }
-boolean: somme SUPERIEUR_OU_EQUAL somme {
+booleen: somme SUPERIEUR_OU_EQUAL somme {
     $$ =creer_n_operation('s', $1, $3);
 }
-boolean: somme EQUAL EQUAL somme {
+booleen: somme EQUAL EQUAL somme {
     $$ =creer_n_operation('e', $1, $4);
+}
+booleen: somme DIFFERENT somme {
+    $$ =creer_n_operation('d', $1, $3);
 }
 
 
