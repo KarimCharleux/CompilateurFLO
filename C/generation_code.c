@@ -397,10 +397,10 @@ void nasm_instruction(n_instruction* n){
 }
 enum Type nasm_appel(n_appel* appel)
 {
-   Symbol* symbol = findSymbol(appel->identifiant);
+    Symbol* symbol = findSymbol(appel->identifiant);
+    nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
     if(appel->parameters != NULL)
     {
-      nasm_commande("push", "ebp", NULL, NULL, "Sauvegarde ebp");
       n_l_expression* parameters = appel->parameters;
       do {
         nasm_exp(parameters->expression);
