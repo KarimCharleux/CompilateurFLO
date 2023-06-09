@@ -523,7 +523,7 @@ enum Type nasm_operation(n_operation* n){
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   else if(n->type_operation == '!'){
-    nasm_commande("not", "eax", NULL, NULL, "Negation du boolean");
+    nasm_commande("xor", "eax", "1", NULL, "Negation du boolean");
   }
   else if(n->type_operation == 'd'){
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
