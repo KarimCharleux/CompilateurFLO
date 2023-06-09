@@ -83,6 +83,7 @@ n_programme* arbre_abstrait;
 %type <variable> variable
 %type <variable> declaration
 %type <variable> affectation
+%type <variable> declarationAffectation
 %type <exp> produit
 %type <exp> boolean
 %type <exp> booleanPrime
@@ -106,6 +107,9 @@ n_programme* arbre_abstrait;
 
 prog: listeFonctions  listeInstructions {
     arbre_abstrait =creer_n_programme($1, $2, NULL);
+} 
+prog: listeInstructions {
+    arbre_abstrait =creer_n_programme(NULL, $1, NULL);
 } 
 
 listeInstructions: instruction {
@@ -208,12 +212,15 @@ declaration: TYPE IDENTIFIANT{
 affectation: IDENTIFIANT EQUAL expr {
 	$$ = creer_n_variable(-1, $1, $3);
 }
-affectation: IDENTIFIANT EQUAL variable {
-    $$ = creer_n_variable(-1, $1, n_variable_to_n_expression($3));
-}
-affectation: TYPE IDENTIFIANT EQUAL expr {
+declarationAffectation: TYPE IDENTIFIANT EQUAL expr {
 	$$ = creer_n_variable($1, $2, $4);
 }
+//affectation: IDENTIFIANT EQUAL variable {
+//    $$ = creer_n_variable(-1, $1, n_variable_to_n_expression($3));
+//}
+//affectation: TYPE IDENTIFIANT EQUAL expr {
+//	$$ = creer_n_variable($1, $2, $4);/
+//}
 variable: IDENTIFIANT{
     $$ = creer_n_variable(-1, $1, NULL);
 }
@@ -222,6 +229,9 @@ instruction: affectation POINT_VIRGULE {
     $$ = n_variable_to_n_instruction($1);
 }
 instruction: declaration POINT_VIRGULE {
+    $$ = n_variable_to_n_instruction($1);
+}
+instruction: declarationAffectation POINT_VIRGULE {
     $$ = n_variable_to_n_instruction($1);
 }
 facteur: variable{

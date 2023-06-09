@@ -155,37 +155,40 @@ void nasm_prog(n_programme *n) {
   symbolTable[0] = creer_global_scope();
   int i=1;
   n_l_fonctions* fonctions = n->fonctions;
-  do {
-   // printf("\n");  BUG RESOLUTION WHY FLUSH ??
-		if (fonctions->fonction != NULL){
-      Symbol* symbol = malloc(sizeof(Symbol));
-      symbol->symbol_name = fonctions->fonction->identifiant ;
-      symbol->type = fonctions->fonction->type;
-      symbol->current_memory_used = 0;
-      symbol->nb_built_in_parameters = 0;
-      int j=0;
-      if(fonctions->fonction->parametres != NULL)
-      {
-        do {
-          Variable* new_variable = malloc(sizeof(Variable));
-          new_variable->variable_name = fonctions->fonction->parametres->variable->identifiant;
-          new_variable->offset_with_ebp = 4+j*4;
-          new_variable->type = fonctions->fonction->parametres->variable->type;
-          symbol->variables[j] = new_variable;
-          ++symbol->nb_built_in_parameters;
-          ++j;
-          fonctions->fonction->parametres = fonctions->fonction->parametres->l_declaration;
-        } while(fonctions->fonction->parametres != NULL );
+  if(fonctions!=NULL)
+  {
+    do {
+      // printf("\n");  BUG RESOLUTION WHY FLUSH ??
+      if (fonctions->fonction != NULL){
+        Symbol* symbol = malloc(sizeof(Symbol));
+        symbol->symbol_name = fonctions->fonction->identifiant ;
+        symbol->type = fonctions->fonction->type;
+        symbol->current_memory_used = 0;
+        symbol->nb_built_in_parameters = 0;
+        int j=0;
+        if(fonctions->fonction->parametres != NULL)
+        {
+          do {
+            Variable* new_variable = malloc(sizeof(Variable));
+            new_variable->variable_name = fonctions->fonction->parametres->variable->identifiant;
+            new_variable->offset_with_ebp = 4+j*4;
+            new_variable->type = fonctions->fonction->parametres->variable->type;
+            symbol->variables[j] = new_variable;
+            ++symbol->nb_built_in_parameters;
+            ++j;
+            fonctions->fonction->parametres = fonctions->fonction->parametres->l_declaration;
+          } while(fonctions->fonction->parametres != NULL );
+        }
+        for(j; j<MAX_SYMBOL_TABLE_SIZE ; ++j)
+        {
+          symbol->variables[j] = NULL;
+        }
+        symbolTable[i] = symbol;
       }
-      for(j; j<MAX_SYMBOL_TABLE_SIZE ; ++j)
-      {
-        symbol->variables[j] = NULL;
-      }
-      symbolTable[i] = symbol;
-		}
-		fonctions = fonctions->fonctions;
-    ++i;
-	} while(fonctions != NULL );
+      fonctions = fonctions->fonctions;
+      ++i;
+    } while(fonctions != NULL );
+  }
   
   printifm("%%include\t'%s'\n","io.asm");
   printifm("%s","\nsection\t.bss\n");
@@ -203,12 +206,15 @@ void nasm_prog(n_programme *n) {
   nasm_commande("int", "0x80", NULL, NULL, "exit");
 }
 void nasm_liste_fonctions(n_l_fonctions *n) {
-	do {
-		if (n->fonction != NULL){
-			nasm_fonction(n->fonction);
-		}
-		n = n->fonctions;
-	} while(n != NULL );
+  if(n !=NULL)
+  {
+    do {
+      if (n->fonction != NULL){
+        nasm_fonction(n->fonction);
+      }
+      n = n->fonctions;
+	  } while(n != NULL );
+  }
 }
 void nasm_fonction(n_fonction* n)
 {
@@ -249,12 +255,15 @@ void nasm_clean_fonction_arguments(char* symbol_name)
 }
 
 void nasm_liste_instructions(n_l_instructions *n) {
-  do {
-		if (n->instruction != NULL){
-			nasm_instruction(n->instruction);
-		}
-		n = n->instructions;
-	} while(n != NULL );
+  if(n!=NULL)
+  {
+    do {
+      if (n->instruction != NULL){
+        nasm_instruction(n->instruction);
+      }
+      n = n->instructions;
+	  } while(n != NULL );
+  }
 }
 void nasm_instruction(n_instruction* n){
 	if(n->type_instruction == i_ecrire){

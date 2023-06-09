@@ -71,15 +71,17 @@ void afficher_n_programme(n_programme* prog,int indent){
 	afficher("</programme>",indent);
 }
 void afficher_n_l_fonctions(n_l_fonctions* fonctions ,int indent){
-	afficher("<liste_instuctions>",indent);
-	
-	do {
-		if (fonctions->fonction != NULL){
-			afficher_n_fonction(fonctions->fonction,indent+1);
-		}
-		fonctions = fonctions->fonctions;
-	} while(fonctions != NULL );
-	afficher("</liste_instructions>",indent);
+	if(fonctions!=NULL)
+	{
+		afficher("<liste_fonctionss>",indent);
+		do {
+			if (fonctions->fonction != NULL){
+				afficher_n_fonction(fonctions->fonction,indent+1);
+			}
+			fonctions = fonctions->fonctions;
+		} while(fonctions != NULL );
+		afficher("</liste_fonctionss>",indent);
+	}
 }
 void afficher_n_fonction(n_fonction* fonction,int indent){
 	afficher("<fonction>",indent+1);
