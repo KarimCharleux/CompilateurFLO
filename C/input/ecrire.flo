@@ -1,11 +1,16 @@
 entier main()
 {
-    ecrire(42);
-    ecrire(Vrai);
-    ecrire(Faux);
-}
+    #ecrire(42);
+    #crire(Vrai);
+    #ecrire(Faux);
+    
+    entier a1 =5;
+    entier b=3;
+    entier c=4;
+    entier d=1;
 
-;
+    ecrire( a1 >= b et c >= d);
+}
 
 main();
 

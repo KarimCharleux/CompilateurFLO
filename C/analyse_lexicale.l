@@ -48,7 +48,6 @@ espace               [ \t\r\n]
 "non"                { return NON;                 }
 "lire"               { return LIRE;                }
 "retourner"          { return RETOURNER;           }
-"max"                { return MAX;                 }
 "boolean"            { yylval.entier=0; return TYPE;  }
 "entier"             { yylval.entier=1; return TYPE;  }
 "%"                  { return MODULO;              }
@@ -71,8 +70,8 @@ int yywrap(){
 //  prend le int qui correspond au caractere defini
 
 
-int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE, SI, SINON, VRAI, FAUX, TANTQUE, OU, NON, LIRE, MAX, MODULO, ACCOLADE_OUVRANTE, ACCOLADE_FERMANTE, EQUAL, VIRGULE, SUPERIEUR_OU_EQUAL, INFERIEUR_OU_EQUAL, ET, OU, INFERIEUR, SUPERIEUR, DIVISER, MOINS, RETOURNER};
-char *str_token[] = {"+","*","(",")", "ecrire", ";", "si", "sinon", "vrai", "faux", "tantque", "||", "!", "lire", "max", "%", "{", "}", "=", ",", ">=", "<=", "&", "|", "<", ">", "/", "-", "<-"};
+int token_fermes[] = {PLUS,FOIS,PARENTHESE_OUVRANTE,PARENTHESE_FERMANTE,ECRIRE,POINT_VIRGULE, SI, SINON, VRAI, FAUX, TANTQUE, OU, NON, LIRE, MODULO, ACCOLADE_OUVRANTE, ACCOLADE_FERMANTE, EQUAL, VIRGULE, SUPERIEUR_OU_EQUAL, INFERIEUR_OU_EQUAL, ET, OU, INFERIEUR, SUPERIEUR, DIVISER, MOINS, RETOURNER};
+char *str_token[] = {"+","*","(",")", "ecrire", ";", "si", "sinon", "vrai", "faux", "tantque", "||", "!", "lire", "%", "{", "}", "=", ",", ">=", "<=", "&", "|", "<", ">", "/", "-", "<-"};
 
 int nbMotsClefs = 29;
 

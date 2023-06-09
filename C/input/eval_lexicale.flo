@@ -11,10 +11,12 @@ entier max(entier entier1, entier entier2,entier entier3){
 	}
 	retourner res;
 }
-;
-booleen continuer = Vrai;
-booleen arreter = Faux;
-tantQue(continuer ou non arreter){
-	entier a = max(lire(),5-12+23,47/13*6);
-	ecrire(a % 100);
-}
+
+boolean continuer = Vrai;
+boolean arreter = Faux;
+max(5,3,5);
+#tantQue(continuer ou non arreter){
+#	entier a = max(lire(),5-12+23,47/13*6);
+#	ecrire(a % 100);
+#}
+

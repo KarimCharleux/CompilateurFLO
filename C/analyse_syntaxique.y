@@ -23,8 +23,11 @@ n_programme* arbre_abstrait;
     n_l_fonctions* l_fonctions;
     n_l_declaration* l_declaration;
     n_l_expression* l_expression;
+    n_l_sinon_si* l_sinon_si;
     n_exp* exp;
     n_appel* appel;
+    n_condition* condition;
+    n_evaluation* evaluation;
 }
 
 
@@ -56,7 +59,6 @@ n_programme* arbre_abstrait;
 %token OU
 %token NON
 %token LIRE
-%token MAX
 %token MODULO
 %token VIRGULE
 %token ACCOLADE_OUVRANTE
@@ -73,6 +75,7 @@ n_programme* arbre_abstrait;
 %type <l_fonctions> listeFonctions
 %type <l_declaration> listDeclaration
 %type <l_expression> listeExpression
+%type <l_sinon_si> listSinonSi
 %type <inst> ecrire
 %type <inst> lire
 %type <exp> expr
@@ -82,9 +85,14 @@ n_programme* arbre_abstrait;
 %type <variable> affectation
 %type <exp> produit
 %type <exp> boolean
+%type <exp> booleanPrime
 %type <exp> somme
 %type <appel> appel
 %token <type> TYPE
+%type <condition> sinonSi
+%type <condition> condition
+%type <evaluation> evaluation
+
 
 %%
 
@@ -96,21 +104,21 @@ n_programme* arbre_abstrait;
 //                                   
 
 
-prog: listeFonctions POINT_VIRGULE listeInstructions {
-    arbre_abstrait =creer_n_programme($1, $3, NULL);
+prog: listeFonctions  listeInstructions {
+    arbre_abstrait =creer_n_programme($1, $2, NULL);
 } 
 
 listeInstructions: instruction {
     $$ =creer_n_l_instructions($1 ,NULL);
 } 
-listeInstructions: instruction listeInstructions {
-    $$ =creer_n_l_instructions($1 ,$2);
+listeInstructions: listeInstructions instruction  {
+    $$ =creer_n_l_instructions($2 ,$1);
 } 
 listeFonctions: fonction {
     $$ =creer_n_l_fonctions($1 ,NULL);
 } 
-listeFonctions: fonction listeFonctions {
-    $$ =creer_n_l_fonctions($1 ,$2);
+listeFonctions: listeFonctions fonction {
+    $$ =creer_n_l_fonctions($2 ,$1);
 } 
 
 
@@ -151,17 +159,39 @@ lire: LIRE PARENTHESE_OUVRANTE PARENTHESE_FERMANTE {
 
 //SI SINON TANQUE -----------------------------------------------------------------------------------------------------------------
 
-instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
+evaluation: SI PARENTHESE_OUVRANTE booleanPrime PARENTHESE_FERMANTE
 {
-    $$ = creer_n_condition($3, $6, NULL);
+    $$ = creer_n_evaluation($3);
 }
-instruction: SI PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
+
+condition: evaluation ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
 {
-    $$ = creer_n_condition($3, $6, $10);
+    $$ = creer_n_condition(0, $1, $3, NULL, NULL);
 }
-instruction: TANTQUE PARENTHESE_OUVRANTE boolean PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
+condition: evaluation ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
+{
+    $$ = creer_n_condition(0, $1, $3, NULL, $7);
+}
+condition: evaluation ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE listSinonSi SINON ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
+{
+    $$ = creer_n_condition(0, $1, $3, $5, $8);
+}
+instruction: TANTQUE PARENTHESE_OUVRANTE booleanPrime PARENTHESE_FERMANTE ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE
 {
     $$ = creer_n_boucle($3, $6);
+}
+
+sinonSi: SINON evaluation ACCOLADE_OUVRANTE listeInstructions ACCOLADE_FERMANTE{
+    $$ = creer_n_condition(1, $2, $4, NULL, NULL);
+}
+listSinonSi: sinonSi{
+    $$ = creer_n_l_sinon_si($1, NULL);
+}
+listSinonSi: listSinonSi sinonSi  {
+    $$ = creer_n_l_sinon_si($2, $1);
+}
+instruction: condition{
+    $$ = n_condition_to_n_instruction($1);
 }
 
 // DECLARATION AFFECTATION -----------------------------------------------------------------------------------------------------------------
@@ -178,10 +208,12 @@ declaration: TYPE IDENTIFIANT{
 affectation: IDENTIFIANT EQUAL expr {
 	$$ = creer_n_variable(-1, $1, $3);
 }
+affectation: IDENTIFIANT EQUAL variable {
+    $$ = creer_n_variable(-1, $1, n_variable_to_n_expression($3));
+}
 affectation: TYPE IDENTIFIANT EQUAL expr {
 	$$ = creer_n_variable($1, $2, $4);
 }
-
 variable: IDENTIFIANT{
     $$ = creer_n_variable(-1, $1, NULL);
 }
@@ -275,7 +307,7 @@ boolean: NON boolean {}
 
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
 
-expr: boolean{
+expr: booleanPrime{
     $$ = $1;
 }
 listeExpression: expr {
@@ -294,25 +326,28 @@ listeExpression: expr VIRGULE listeExpression {
 //  \____\___/|_| |_| |_| .__/ \__,_|_|  \__,_|_|___/\___/|_| |_|___/
 //                      |_|                                          
 
-boolean: boolean OU boolean {
+booleanPrime: booleanPrime OU boolean {
     $$ =creer_n_operation('|', $1 , $3);
 }
-boolean: boolean ET boolean {
+booleanPrime: booleanPrime ET boolean {
     $$ =creer_n_operation('&', $1, $3);
 }
-boolean: expr INFERIEUR expr {
+booleanPrime: boolean{
+    $$ = $1;
+}
+boolean: somme INFERIEUR somme {
     $$ =creer_n_operation('<', $1, $3);
 }
-boolean: expr SUPERIEUR expr {
+boolean: somme SUPERIEUR somme {
     $$ =creer_n_operation('>', $1, $3);
 }
-boolean: expr INFERIEUR_OU_EQUAL expr {
+boolean: somme INFERIEUR_OU_EQUAL somme {
     $$ =creer_n_operation('i', $1, $3);
 }
-boolean: expr SUPERIEUR_OU_EQUAL expr {
+boolean: somme SUPERIEUR_OU_EQUAL somme {
     $$ =creer_n_operation('s', $1, $3);
 }
-boolean: expr EQUAL EQUAL expr {
+boolean: somme EQUAL EQUAL somme {
     $$ =creer_n_operation('e', $1, $4);
 }
 

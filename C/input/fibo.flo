@@ -5,7 +5,5 @@ entier fibo(entier n){
 	retourner fibo(n-1)+fibo(n-2);
 }
 
-;
-
 entier n = 15;
 ecrire(fibo(n));

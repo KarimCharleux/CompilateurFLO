@@ -49,11 +49,11 @@ Symbol* creer_global_scope()
   symbol->type = entier;
   symbol->current_memory_used = 0;
   symbol->nb_built_in_parameters = 0;
+
   for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
   {
      symbol->variables[i] = NULL;
   }
-
   return symbol;
 }
 Symbol* findSymbol(char* identifiant)
@@ -66,6 +66,9 @@ Symbol* findSymbol(char* identifiant)
     }
     ++i;
   }while (symbolTable[i]!= NULL);
+  printf("Can t find symbol%s\n", identifiant);
+  printSymbols();
+
   return NULL;
 } 
 Variable* findVariable(char* identifiant, Variable* variableTable[])
@@ -78,7 +81,8 @@ Variable* findVariable(char* identifiant, Variable* variableTable[])
     }
     ++i;
   }while (variableTable[i]!= NULL);
-
+  printf("Can t find variable %s in %s\n", identifiant);
+  printSymbols();
   return NULL;
 } 
 void printSymbols()
@@ -245,7 +249,7 @@ void nasm_clean_fonction_arguments(char* symbol_name)
 }
 
 void nasm_liste_instructions(n_l_instructions *n) {
-	do {
+  do {
 		if (n->instruction != NULL){
 			nasm_instruction(n->instruction);
 		}
@@ -272,7 +276,7 @@ void nasm_instruction(n_instruction* n){
     char label_endif[STRING_SIZE];
     sprintf(label_endif, "endif%d", fin_label_count);
 
-    nasm_exp(n->u.condition->expr);
+    nasm_exp(n->u.condition->evaluation->expr);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); 
 
@@ -310,13 +314,12 @@ void nasm_instruction(n_instruction* n){
 
     sprintf(label_tantque, "TantQue%d:", label_count);
     nasm_commande(label_tantque, NULL, NULL, NULL, "Entrer dans le tantque");
-
-    nasm_exp(n->u.condition->expr);
+    nasm_exp(n->u.boucle->expr);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
     nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
 
-    nasm_liste_instructions(n->u.condition->l_instructions);
+    nasm_liste_instructions(n->u.boucle->l_instructions);
     nasm_commande("jmp", tantque, NULL, NULL, "Aller au si");
     
     sprintf(label_end_tantque, "finTantQue%d:", label_count);
@@ -352,12 +355,14 @@ void nasm_instruction(n_instruction* n){
       nasm_commande("push", "0", NULL, NULL, "Insere 0 dans la pile");
     }
     symbol->current_memory_used -= 4; 
-    int i=0;
-    while (symbol->variables[i] != NULL)++i;
+
     Variable* new_variable = malloc(sizeof(Variable));
     new_variable->variable_name = n->u.variable->identifiant;
     new_variable->type = n->u.variable->type;
     new_variable->offset_with_ebp = symbol->current_memory_used;
+    
+    int i=0;
+    while (symbol->variables[i] != NULL)++i;
     symbol->variables[i] = new_variable;
   }
   if(n->type_instruction == i_appel_inst)
@@ -369,8 +374,6 @@ void nasm_instruction(n_instruction* n){
     nasm_exp(n->u.exp);
     if(strcmp(current_symbol, GLOBAL_SCOPE_NAME)==0 || (findSymbol(current_symbol)->type != n->u.exp->type_value))
     {
-      printf("Retrun type 1 = %d\n", findSymbol(current_symbol)->type);
-      printf("Retrun type 2 = %d\n", n->u.exp->type_value);
       exit(43);
     }
     nasm_commande("pop", "eax", NULL, NULL, "Passe le retour par eax");

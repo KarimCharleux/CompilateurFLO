@@ -6,6 +6,4 @@ entier main()
    }
 }
 
-;
-
 main();

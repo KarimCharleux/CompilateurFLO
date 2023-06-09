@@ -31,6 +31,11 @@ typedef struct n_l_fonctions n_l_fonctions;
 typedef struct n_l_declaration n_l_declaration;
 typedef struct n_l_expression n_l_expression;
 typedef struct n_appel n_appel;
+typedef struct n_l_sinon_si n_l_sinon_si;
+typedef struct n_evaluation n_evaluation;
+
+
+
 
 
 
@@ -51,10 +56,17 @@ struct n_variable{
 };
 struct n_condition
 {
-  n_exp* expr;
+  enum {i_si, i_sinon_si} type;
+  n_evaluation* evaluation;
   n_l_instructions* l_instructions;
+  n_l_sinon_si* l_sinon_si;
   n_l_instructions* l_instructions_2;
 };
+struct n_evaluation
+{
+  n_exp* expr;
+};
+
 struct n_boucle
 {
   n_exp* expr;
@@ -80,6 +92,12 @@ struct n_l_expression
   n_exp* expression;
   n_l_expression* l_expression;
 };
+struct n_l_sinon_si
+{
+  n_condition* condition;
+  n_l_sinon_si* l_sinon_si;
+};
+
 
 
 
@@ -95,7 +113,7 @@ struct n_l_instructions{
 	n_l_instructions* instructions;
 };
 struct n_instruction{
-  enum { i_ecrire, i_lire, i_condition, i_boucle, i_affectation, i_declaration, i_appel_inst, i_retour} type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
+  enum { i_ecrire, i_lire, i_condition, i_boucle, i_affectation, i_declaration, i_appel_inst, i_retour, i_max} type_instruction; // pour le moment une instruction peut-être uniquement de type écrire. Il faudra ajouter affectation, exécution de fonction, si,sinon, etc...
   union{ 
     n_exp* exp; // pour ecrire(exp);
     n_condition* condition; 
@@ -145,6 +163,8 @@ void afficher_n_condition(n_condition* i_condition, int indent);
 void afficher_n_boucle(n_boucle* i_boucle, int indent);
 void afficher_n_variable(n_variable* variable, int indent);
 void afficher_n_l_declaration(n_l_declaration* parametres, int indent);
+void afficher_n_l_sinon_si(n_l_sinon_si* l_sinon_si ,int indent);
+void afficher_n_evaluation(n_evaluation* evaluation, int indent);
 
 /* -----------------------------------------------------------------------------------------------------------------
 #   ____                                                 _     
@@ -160,21 +180,23 @@ n_l_instructions* creer_n_l_instructions(n_instruction* instruction ,n_l_instruc
 n_l_fonctions* creer_n_l_fonctions(n_fonction* fonction ,n_l_fonctions* fonctions);
 n_l_declaration* creer_n_l_declaration(n_variable* variable, n_l_declaration* l_declaration);
 n_l_expression* creer_n_l_expression(n_exp* expression, n_l_expression* l_expression);
+n_l_sinon_si* creer_n_l_sinon_si(n_condition* condition, n_l_sinon_si* l_sinon_si);
 n_fonction* creer_n_fonction(int type, char* identifiant ,n_l_declaration* l_declaration, n_l_instructions* l_instructions);
 n_variable* creer_n_variable(int type, char* identifiant, n_exp* expr);
 n_appel* creer_n_appel(char* identifiant, n_l_expression* l_expression);
+n_condition* creer_n_condition(int type, n_evaluation* evaluation, n_l_instructions* l_instructions, n_l_sinon_si* l_sinon_si, n_l_instructions* l_instructions_2);
+n_evaluation* creer_n_evaluation(n_exp* expr);
 
 // INSTRUCTION -----------------------------------------------------------------------------------------------------------------
 n_instruction* creer_n_ecrire(n_exp* exp);
 n_instruction* creer_n_lire();
-n_instruction* creer_n_max(n_exp* exp);
 
-n_instruction* creer_n_condition(n_exp* expr, n_l_instructions* l_instructions, n_l_instructions* l_instructions_2);
 n_instruction* creer_n_boucle(n_exp* expr, n_l_instructions* l_instructions);
 n_instruction* creer_n_retour(n_exp* expr);
 
 n_instruction* n_appel_to_n_instruction(n_appel* appel);
 n_instruction* n_variable_to_n_instruction(n_variable* variable);
+n_instruction* n_condition_to_n_instruction(n_condition* condition);
 
 // EXPRESSION -----------------------------------------------------------------------------------------------------------------
 n_exp* n_variable_to_n_expression(n_variable* variable);

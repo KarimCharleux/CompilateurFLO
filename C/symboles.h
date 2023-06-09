@@ -77,14 +77,13 @@ extern int yydebug;
     OU = 278,                      /* OU  */
     NON = 279,                     /* NON  */
     LIRE = 280,                    /* LIRE  */
-    MAX = 281,                     /* MAX  */
-    MODULO = 282,                  /* MODULO  */
-    VIRGULE = 283,                 /* VIRGULE  */
-    ACCOLADE_OUVRANTE = 284,       /* ACCOLADE_OUVRANTE  */
-    ACCOLADE_FERMANTE = 285,       /* ACCOLADE_FERMANTE  */
-    ET = 286,                      /* ET  */
-    RETOURNER = 287,               /* RETOURNER  */
-    TYPE = 288                     /* TYPE  */
+    MODULO = 281,                  /* MODULO  */
+    VIRGULE = 282,                 /* VIRGULE  */
+    ACCOLADE_OUVRANTE = 283,       /* ACCOLADE_OUVRANTE  */
+    ACCOLADE_FERMANTE = 284,       /* ACCOLADE_FERMANTE  */
+    ET = 285,                      /* ET  */
+    RETOURNER = 286,               /* RETOURNER  */
+    TYPE = 287                     /* TYPE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -106,10 +105,13 @@ union YYSTYPE
     n_l_fonctions* l_fonctions;
     n_l_declaration* l_declaration;
     n_l_expression* l_expression;
+    n_l_sinon_si* l_sinon_si;
     n_exp* exp;
     n_appel* appel;
+    n_condition* condition;
+    n_evaluation* evaluation;
 
-#line 113 "symboles.h"
+#line 115 "symboles.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
