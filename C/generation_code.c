@@ -116,28 +116,57 @@ void printSymbol(char* symbol_name)
     ++i;
   }
 }
-
-void verify_parameters(Variable* variableTable[], n_l_expression* l_expression)
+void verify_operand(enum Type type1, enum Type type2, enum Type reference)
 {
-  int i=0;
-  do{
-    if(l_expression==NULL || l_expression->expression->type_value != variableTable[i]->type)
+  if(type2 == NULL)
+  {
+    if(type1 != reference)
     {
-      printf("EXIT FAILURE -- BAD FONCTION ENTRY\n");
-      printf("i = %d\n", i);
-      printf("expressi = %d\n", l_expression->expression->type_exp);
-      printf("variable = %s\n", variableTable[i]->variable_name);
-      printf("Type expressi = %d\n", l_expression->expression->type_value);
-      printf("Type varTable = %d\n", variableTable[i]->type);
+      printf("Mauvais type d operande, devrait etre %d , mais est %d" , reference, type1);
       exit(EXIT_FAILURE);
     }
-    ++i;
-    l_expression = l_expression->l_expression;
-  }while (variableTable[i]!= NULL);
-  if(l_expression == NULL)
-  {
-    return;
   }
+  else if (reference==NULL)
+  {
+    if(type1 != type2)
+    {
+      printf("Mauvais type d operande sont %d & %d", type1, type2);
+      exit(EXIT_FAILURE);
+    }
+  }
+  else if(type1 != type2 || type2 != reference)
+  {
+    printf("Mauvais type d operande, devrait etre %d , mais sont %d & %d", reference, type1, type2);
+    exit(EXIT_FAILURE);
+  }
+}
+
+void verify_parameters(int nb_parameters, Variable* variableTable[], n_l_expression* l_expression)
+{
+  int i=0;
+  if(l_expression != NULL){
+    do{
+      if(l_expression==NULL || l_expression->expression->type_value != variableTable[i]->type)
+      {
+        printf("EXIT FAILURE -- BAD FONCTION ENTRY\n");
+        printf("i = %d\n", i);
+        printf("expressi = %d\n", l_expression->expression->type_exp);
+        printf("variable = %s\n", variableTable[i]->variable_name);
+        printf("Type expressi = %d\n", l_expression->expression->type_value);
+        printf("Type varTable = %d\n", variableTable[i]->type);
+        exit(EXIT_FAILURE);
+      }
+      ++i;
+      l_expression = l_expression->l_expression;
+    }while (variableTable[i]!= NULL);
+  }
+  else
+  {
+    if(nb_parameters==0)return;
+    printf("Necessite %d parametres", nb_parameters);
+    exit(EXIT_FAILURE);
+  }
+  if(l_expression==NULL)return;
   printf("Trop de parametres\n");
   exit(EXIT_FAILURE);
 }
@@ -312,6 +341,7 @@ void nasm_instruction(n_instruction* n){
     ++fin_label_count;
 
     nasm_exp(n->u.condition->evaluation->expr);
+    verify_operand(n->u.condition->evaluation->expr->type_value, NULL, booleen);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); 
 
@@ -350,6 +380,7 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_tantque2, "%s:", label_tantque);
     nasm_commande(label_tantque2, NULL, NULL, NULL, "Entrer dans le tantque");
     nasm_exp(n->u.boucle->expr);
+    verify_operand(n->u.boucle->expr->type_value, NULL, booleen);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat");
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition");
     nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
@@ -366,6 +397,10 @@ void nasm_instruction(n_instruction* n){
     Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
 
     nasm_exp(n->u.variable->expr);
+    if(n->u.variable->expr->type_value != variable->type){
+      printf("WRONG VAR TYPE");
+      exit(EXIT_FAILURE);
+    }
     nasm_commande("pop", "eax", NULL, NULL, "Recupere le resultat dans eax");
     char variable_adresse[STRING_SIZE];
     if(variable->offset_with_ebp>0)
@@ -428,8 +463,9 @@ enum Type nasm_appel(n_appel* appel)
         nasm_exp(parameters->expression);
         parameters = parameters->l_expression;
       } while(parameters != NULL );
-      verify_parameters(symbol->variables, appel->parameters);
+      
     }
+    verify_parameters(symbol->nb_built_in_parameters, symbol->variables, appel->parameters);
     char label_appel[STRING_SIZE];
     sprintf(label_appel, "_%s", appel->identifiant);
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
@@ -486,79 +522,98 @@ enum Type nasm_operation(n_operation* n){
   {
     nasm_exp(n->exp2);
     nasm_commande("pop", "ebx", NULL, NULL, "depile la seconde operande dans ebx");
+    if(n->exp2->type_value != n->exp1->type_value){
+      printf("Operation entre 2 variable de type different %d et %d\n", n->exp1->type_value, n->exp2->type_value);
+      exit(EXIT_FAILURE);
+    }
   }
   nasm_commande("pop", "eax", NULL, NULL, "depile la permière operande dans eax");
   if (n->type_operation == '+'){
+      verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
       nasm_commande("add", "eax", "ebx", NULL, "operation +");
   }
   else if(n->type_operation == '*'){
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("imul", "eax", "ebx", NULL, "operation *");
   }
   else if(n->type_operation == '-'){
     if(n->exp2!=NULL)
     {
+      verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
       nasm_commande("sub", "eax", "ebx", NULL, "operation -");
     }
     else
     {
+      verify_operand(n->exp1->type_value,NULL, entier);
       nasm_commande("mov", "ebx", "0", NULL, "Met 0 dans ebx");
       nasm_commande("sub", "ebx", "eax", NULL, "operation - sur lui meme");
       nasm_commande("mov", "eax", "ebx", NULL, "envoi ebx dans eax");
     }
   }
   else if(n->type_operation == '/'){
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("mov", "edx", "0", NULL, "Met edx a 0");
     nasm_commande("idiv", "ebx", NULL, NULL, "operation /");
   }
   else if(n->type_operation == '%'){
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("mov", "edx", "0", NULL, "");
     nasm_commande("idiv", "ebx", NULL, NULL, "operation /");   
     nasm_commande("mov", "eax", "edx", NULL, "");  
   }
   else if(n->type_operation == '<'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setl", "al", NULL, NULL, "set 1 dans al si eax < ebx");
     nasm_commande("movzx", "eax", "al", NULL, "move dans register que l on peut empiler");
   }
   else if(n->type_operation == '>'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setg", "al", NULL, NULL, "set 1 dans al si eax > ebx");
     nasm_commande("movzx", "eax", "al", NULL, "move dans register que l on peut empiler");
   }
   else if(n->type_operation == '|'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, booleen);
      nasm_commande("or", "eax", "ebx", NULL, "opération |");
   }
   else if(n->type_operation == '&'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, booleen);
     nasm_commande("and", "eax", "ebx", NULL, "opération &");
   }
   else if(n->type_operation == 'e'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, NULL);
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("sete", "al", NULL, NULL, "met 1 dans al si eax == ebx");
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   else if(n->type_operation == 'i'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setle", "al", NULL, NULL, "met 1 dans al si eax <= ebx");
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   else if(n->type_operation == 's'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setge", "al", NULL, NULL, "met 1 dans al si eax >= ebx");
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
   }
   else if(n->type_operation == '!'){
     type = booleen;
+    verify_operand(n->exp1->type_value, NULL, booleen);
     nasm_commande("xor", "eax", "1", NULL, "Negation du boolean");
   }
   else if(n->type_operation == 'd'){
     type = booleen;
+    verify_operand(n->exp1->type_value, n->exp2->type_value, entier);
     nasm_commande("cmp", "eax", "ebx", NULL, "compare");
     nasm_commande("setne", "al", NULL, NULL, "met 1 dans al si eax != ebx");
     nasm_commande("movzx", "eax", "al", NULL, "met 0 ou al dans eax");
