@@ -7,3 +7,4 @@ entier fibo(entier n){
 
 entier n = 15;
 ecrire(fibo(n));
+
