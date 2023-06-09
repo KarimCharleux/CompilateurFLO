@@ -274,17 +274,9 @@ n_l_declaration* creer_n_l_declaration(n_variable* variable, n_l_declaration* l_
 {
 	n_l_declaration* n = malloc(sizeof(n_l_declaration));
 	n->variable = variable;
-	n->l_declaration = NULL;
+	n->l_declaration = l_declaration;
 
-	if(l_declaration==NULL)
-	{
-		return n;
-	}
-	n_l_declaration* l_declaration_pointer= l_declaration;
-	while (l_declaration_pointer->l_declaration != NULL)l_declaration_pointer = l_declaration_pointer->l_declaration;
-	l_declaration_pointer->l_declaration = n;
-
-	return l_declaration;
+	return n;
 }
 n_l_expression* creer_n_l_expression(n_exp* expression, n_l_expression* l_expression){
 	n_l_expression* n = malloc(sizeof(n_l_expression));

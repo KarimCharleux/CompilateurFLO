@@ -204,5 +204,4 @@ n_exp* n_appel_to_n_expression(n_appel* appel);
 n_exp* creer_n_entier(int valeur, int sign);
 n_exp* creer_n_boolean(int valeur);
 n_exp* creer_n_operation(char type_operation, n_exp* exp1, n_exp* exp2);
-n_exp* transform_n_expression(n_exp* expr, char operation);
 
