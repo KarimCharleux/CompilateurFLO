@@ -281,9 +281,17 @@ n_l_declaration* creer_n_l_declaration(n_variable* variable, n_l_declaration* l_
 n_l_expression* creer_n_l_expression(n_exp* expression, n_l_expression* l_expression){
 	n_l_expression* n = malloc(sizeof(n_l_expression));
 	n->expression = expression;
-	n->l_expression = l_expression;
+	n->l_expression = NULL;
 
-	return n;
+	if(l_expression==NULL)
+	{
+		return n;
+	}
+	n_l_expression* l_expression_pointer= l_expression;
+	while (l_expression_pointer->l_expression != NULL)l_expression_pointer = l_expression_pointer->l_expression;
+	l_expression_pointer->l_expression = n;
+
+	return l_expression;
 }
 n_l_sinon_si* creer_n_l_sinon_si(n_condition* condition, n_l_sinon_si* l_sinon_si)
 {
