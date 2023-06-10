@@ -51,12 +51,17 @@ Symbol* creer_global_scope()
   symbol->type = entier;
   symbol->current_memory_used = 0;
   symbol->nb_built_in_parameters = 0;
-
+  symbol->variables_by_scope = get_new_scope_variables();
+  return symbol;
+}
+VariablesByScope* get_new_scope_variables(){
+  VariablesByScope* variables_by_scope = malloc(sizeof(VariablesByScope));
   for(int i=0; i<MAX_SYMBOL_TABLE_SIZE ; ++i)
   {
-     symbol->variables[i] = NULL;
+     variables_by_scope->variables[i] = NULL;
   }
-  return symbol;
+  return variables_by_scope;
+  
 }
 Symbol* findSymbol(char* identifiant)
 {
@@ -68,24 +73,29 @@ Symbol* findSymbol(char* identifiant)
     }
     ++i;
   }while (symbolTable[i]!= NULL);
-  printf("Can t find symbol%s\n", identifiant);
+  perror("Can t find symbol");
+  printf("Can t find symbol = %s\n", identifiant);
   printSymbols();
-
-  return NULL;
+  exit(EXIT_FAILURE);
 } 
-Variable* findVariable(char* identifiant, Variable* variableTable[])
+Variable* findVariable(char* identifiant, VariablesByScope* variables_by_scope)
 {
-  int i=0;
-  do{
-    if(variableTable[i] != NULL && strcmp(variableTable[i]->variable_name, identifiant)==0)
-    { 
-      return variableTable[i];
-    }
-    ++i;
-  }while (variableTable[i]!= NULL);
+  while (variables_by_scope != NULL)
+  {
+    int i=0;
+    do{
+      if(variables_by_scope->variables[i] != NULL && strcmp(variables_by_scope->variables[i]->variable_name, identifiant)==0)
+      { 
+        return variables_by_scope->variables[i];
+      }
+      ++i;
+    }while (variables_by_scope->variables[i]!= NULL);
+    variables_by_scope = variables_by_scope->next_scope;
+  }
+  perror("Cant find var");
   printf("Can t find variable %s\n", identifiant);
-  printSymbols();
-  return NULL;
+  printSymbol(current_symbol);
+  exit(EXIT_FAILURE);
 } 
 void printSymbols()
 {
@@ -107,13 +117,19 @@ void printSymbol(char* symbol_name)
   printf("Memory : %d\n", symbol->current_memory_used);
   printf("Type : %d\n", symbol->type);
   int i=0;
-  while (symbol->variables[i]!=NULL)
+  VariablesByScope* variables_by_scope = symbol->variables_by_scope;
+  while (variables_by_scope!=NULL)
   {
-    perror("    ");
-    printf("Var : %s\n", symbol->variables[i]->variable_name);
-    perror("      ");
-    printf("Off : %d\n", symbol->variables[i]->offset_with_ebp);
-    ++i;
+    printf("---scope %p----", variables_by_scope);
+    while (variables_by_scope->variables[i]!=NULL)
+    {
+      printf("    ");
+      printf("Var : %s\n", variables_by_scope->variables[i]->variable_name);
+      printf("      ");
+      printf("Off : %d\n", variables_by_scope->variables[i]->offset_with_ebp);
+      ++i;
+    }
+    variables_by_scope = variables_by_scope->next_scope;
   }
 }
 void verify_operand(enum Type type1, enum Type type2, enum Type reference)
@@ -222,6 +238,7 @@ void nasm_prog(n_programme *n) {
         symbol->current_memory_used = 0;
         symbol->nb_built_in_parameters = 0;
         int j=0;
+        VariablesByScope* variable_of_function_scope = malloc(sizeof(VariablesByScope));
         if(fonctions->fonction->parametres != NULL)
         {
           do {
@@ -229,7 +246,7 @@ void nasm_prog(n_programme *n) {
             new_variable->variable_name = fonctions->fonction->parametres->variable->identifiant;
             new_variable->offset_with_ebp = 4+j*4;
             new_variable->type = fonctions->fonction->parametres->variable->type;
-            symbol->variables[j] = new_variable;
+            variable_of_function_scope->variables[j] = new_variable;
             ++symbol->nb_built_in_parameters;
             ++j;
             fonctions->fonction->parametres = fonctions->fonction->parametres->l_declaration;
@@ -237,8 +254,9 @@ void nasm_prog(n_programme *n) {
         }
         for(j; j<MAX_SYMBOL_TABLE_SIZE ; ++j)
         {
-          symbol->variables[j] = NULL;
+          variable_of_function_scope->variables[j] = NULL;
         }
+        symbol->variables_by_scope = variable_of_function_scope;
         symbolTable[i] = symbol;
       }
       fonctions = fonctions->fonctions;
@@ -282,30 +300,70 @@ void nasm_fonction(n_fonction* n)
   nasm_commande("mov", "ebp", "esp", NULL, "Met a jour ebp");
 
   nasm_liste_instructions(n->l_instructions);
+  nasm_clean_local_variables(current_symbol, 1);
   current_symbol = GLOBAL_SCOPE_NAME;
 }
-void nasm_clean_local_variables(char* symbol_name)
+void nasm_clean_local_variables(char* symbol_name, int clean_symbol_table)
 {
   Symbol* symbol = findSymbol(symbol_name);
   int i=symbol->nb_built_in_parameters;
-  
-  while (symbol->variables[i] != NULL)
+  if(clean_symbol_table)symbol->variables_by_scope->next_scope=NULL;
+  VariablesByScope* variable_of_function_scope = symbol->variables_by_scope;
+  while (variable_of_function_scope->variables[i] != NULL)
   {
     char string[40];
-    sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
+    sprintf(string, "Depile local variable : %s", variable_of_function_scope->variables[i]->variable_name);
     nasm_commande("add", "esp", "4", NULL, string);
-    symbol->variables[i]=NULL;
+    if(clean_symbol_table)
+    {
+      variable_of_function_scope->variables[i]=NULL;
+      symbol->current_memory_used -=4;
+    }
+    ++i;
+  } 
+}
+void clean_under_scope_variables(char* symbol_name)
+{
+  Symbol* symbol = findSymbol(symbol_name);
+  int i=0;
+  VariablesByScope* current_variables_by_scope = symbol->variables_by_scope;
+  VariablesByScope* previous_variables_by_scope = NULL;
+  while (current_variables_by_scope->next_scope !=NULL){
+    previous_variables_by_scope = current_variables_by_scope;
+    current_variables_by_scope = current_variables_by_scope->next_scope;
+  }
+  if(current_variables_by_scope==symbol->variables_by_scope){
+    perror("WRONG SCOPE FORMATTING");
+    return;
+  }
+  while (current_variables_by_scope->variables[i] != NULL)
+  {
+    char string[40];
+    sprintf(string, "Depile local variable : %s", current_variables_by_scope->variables[i]->variable_name);
+    nasm_commande("add", "esp", "4", NULL, string);
+    current_variables_by_scope->variables[i]=NULL;
     symbol->current_memory_used -=4;
     ++i;
   } 
+  free(previous_variables_by_scope->next_scope);
+  previous_variables_by_scope->next_scope=NULL;
+}
+VariablesByScope* get_last_scope_variables(Symbol* symbol)
+{
+  VariablesByScope* variables_by_scope = symbol->variables_by_scope;
+  while (variables_by_scope->next_scope !=NULL)variables_by_scope = variables_by_scope->next_scope;
+
+  return variables_by_scope;
 }
 void nasm_clean_fonction_arguments(char* symbol_name)
 {
   Symbol* symbol = findSymbol(symbol_name);
+  symbol->variables_by_scope->next_scope=NULL;
+  VariablesByScope* variable_of_function_scope = symbol->variables_by_scope;
   for(int i=0; i<symbol->nb_built_in_parameters; ++i)
   {
     char string[40];
-    sprintf(string, "Depile local variable : %s", symbol->variables[i]->variable_name);
+    sprintf(string, "Depile local variable : %s", variable_of_function_scope->variables[i]->variable_name);
     nasm_commande("add", "esp", "4", NULL, string);
   } 
 }
@@ -334,6 +392,10 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("push", "eax", NULL, NULL, "empile eax");
 	}
   if(n->type_instruction == i_condition){
+    Symbol* symbol = findSymbol(current_symbol);
+    VariablesByScope* variable_by_scope = get_last_scope_variables(symbol);
+    variable_by_scope->next_scope = get_new_scope_variables();
+
     char label_if[STRING_SIZE];
     sprintf(label_if, "if%d", if_label_count);
     char label_else[STRING_SIZE];
@@ -345,10 +407,10 @@ void nasm_instruction(n_instruction* n){
     ++fin_label_count;
 
     nasm_exp(n->u.condition->evaluation->expr);
+
     verify_operand(n->u.condition->evaluation->expr->type_value, none, booleen);
     nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
     nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); 
-
     if(n->u.condition->l_instructions_2!=NULL)
     {
       nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon"); 
@@ -370,9 +432,14 @@ void nasm_instruction(n_instruction* n){
     }
     sprintf(label_endif, "%s:", label_endif);
     nasm_commande(label_endif, NULL, NULL, NULL, "Aller a la fin");
+    clean_under_scope_variables(current_symbol);
 	}
   if(n->type_instruction == i_boucle)
   {
+    Symbol *symbol = findSymbol(current_symbol);
+    VariablesByScope* variable_by_scope = get_last_scope_variables(symbol);
+    variable_by_scope->next_scope = get_new_scope_variables();
+
     char label_tantque[STRING_SIZE];
     char label_end_tantque[STRING_SIZE];
     sprintf(label_end_tantque, "finTantQue%d", fin_tant_que_label_count);
@@ -394,11 +461,12 @@ void nasm_instruction(n_instruction* n){
     
     sprintf(label_end_tantque, "%s:", label_end_tantque);
     nasm_commande(label_end_tantque, NULL, NULL, NULL, "Sortie du tantque");
+    clean_under_scope_variables(current_symbol);
 	}
   if(n->type_instruction == i_affectation)
   {
     Symbol* symbol = findSymbol(current_symbol);
-    Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
+    Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables_by_scope);
 
     nasm_exp(n->u.variable->expr);
     if(n->u.variable->expr->type_value != variable->type){
@@ -436,8 +504,9 @@ void nasm_instruction(n_instruction* n){
     new_variable->offset_with_ebp = symbol->current_memory_used;
     
     int i=0;
-    while (symbol->variables[i] != NULL)++i;
-    symbol->variables[i] = new_variable;
+    VariablesByScope* variable_of_scope = get_last_scope_variables(symbol);
+    while (variable_of_scope->variables[i] != NULL)++i;
+    variable_of_scope->variables[i] = new_variable;
   }
   if(n->type_instruction == i_appel_inst)
   {
@@ -453,7 +522,7 @@ void nasm_instruction(n_instruction* n){
       exit(EXIT_FAILURE);
     }
     nasm_commande("pop", "eax", NULL, NULL, "Passe le retour par eax");
-    nasm_clean_local_variables(current_symbol);
+    nasm_clean_local_variables(current_symbol, 0);
     nasm_commande("ret", NULL, NULL, NULL, "Return");
   }
 }
@@ -470,7 +539,7 @@ enum Type nasm_appel(n_appel* appel)
       } while(parameters != NULL );
       
     }
-    verify_parameters(symbol->nb_built_in_parameters, symbol->variables, appel->parameters);
+    verify_parameters(symbol->nb_built_in_parameters, symbol->variables_by_scope->variables, appel->parameters);
     char label_appel[STRING_SIZE];
     sprintf(label_appel, "_%s", appel->identifiant);
     nasm_commande("call", label_appel, NULL, NULL, "Appelle le label");
@@ -489,7 +558,7 @@ void nasm_exp(n_exp* n){
 	}
   else if (n->type_exp == i_variable){
     Symbol* symbol = findSymbol(current_symbol);
-    Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables);
+    Variable* variable = findVariable(n->u.variable->identifiant, symbol->variables_by_scope);
     n->type_value = variable->type;
     char variable_adresse[STRING_SIZE];
     if(variable->offset_with_ebp>0)
