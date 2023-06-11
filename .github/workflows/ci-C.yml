@@ -32,6 +32,6 @@ jobs:
 
       - run: |
           for file in C/output/bin/* ; do
-            ./$file < echo '2' || continue
+            echo '2' | ./$file || continue
           done
         continue-on-error: true
