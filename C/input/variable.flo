@@ -9,6 +9,7 @@ a = 12;
 b = 64;
 tantque( a < b){
 	entier c = 5; 
+	ecrire(c);
 	ecrire(a);
 	a = a+c;
 }

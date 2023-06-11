@@ -107,6 +107,7 @@ void printSymbols()
 }
 void printSymbol(char* symbol_name)
 {
+  printf("\n");
   Symbol* symbol = findSymbol(symbol_name);
   if(symbol==NULL)
   {
@@ -116,11 +117,11 @@ void printSymbol(char* symbol_name)
   printf("Name : %s\n", symbol->symbol_name);
   printf("Memory : %d\n", symbol->current_memory_used);
   printf("Type : %d\n", symbol->type);
-  int i=0;
   VariablesByScope* variables_by_scope = symbol->variables_by_scope;
   while (variables_by_scope!=NULL)
   {
-    printf("---scope %p----", variables_by_scope);
+    int i=0;
+    printf("---scope %p----\n", variables_by_scope);
     while (variables_by_scope->variables[i]!=NULL)
     {
       printf("    ");
@@ -131,6 +132,7 @@ void printSymbol(char* symbol_name)
     }
     variables_by_scope = variables_by_scope->next_scope;
   }
+  printf("\n\n");
 }
 void verify_operand(enum Type type1, enum Type type2, enum Type reference)
 {
@@ -484,11 +486,13 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
 
     nasm_liste_instructions(n->u.boucle->l_instructions);
+    //printSymbol(current_symbol);
     nasm_commande("jmp", label_tantque, NULL, NULL, "Aller au si");
     
     sprintf(label_end_tantque, "%s:", label_end_tantque);
     nasm_commande(label_end_tantque, NULL, NULL, NULL, "Sortie du tantque");
     clean_under_scope_variables(current_symbol);
+    //printSymbol(current_symbol);
 	}
   if(n->type_instruction == i_affectation)
   {
