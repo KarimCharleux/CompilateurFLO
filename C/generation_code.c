@@ -400,16 +400,19 @@ void nasm_instruction(n_instruction* n){
     variable_by_scope->next_scope = get_new_scope_variables();
 
     char label_if[STRING_SIZE];
-    sprintf(label_if, "if%d", if_label_count);
+    char label_if_2[STRING_SIZE];
     char label_else[STRING_SIZE];
-    sprintf(label_else, "else%d", else_label_count);
     char label_endif[STRING_SIZE];
+    sprintf(label_if, "if%d", if_label_count);
+    sprintf(label_else, "else%d", else_label_count);
     sprintf(label_endif, "endif%d", fin_label_count);
 
     ++if_label_count;
     ++else_label_count;
     ++fin_label_count;
 
+    sprintf(label_if_2, "if%d", if_label_count);
+    ++if_label_count;
     enum Condition_type next_condition_type;
     if(n->u.condition->l_instructions_2 != NULL)
     {
@@ -419,16 +422,13 @@ void nasm_instruction(n_instruction* n){
     {
       next_condition_type = type_else_if;
     }
-    
     else{
       next_condition_type = type_end_if;
     }
-    nasm_si(n->u.condition, next_condition_type, label_if, NULL, label_else, label_endif);
+    nasm_si(n->u.condition, next_condition_type, label_if, label_if_2, label_else, label_endif);
   
+    strcpy(label_if, label_if_2);
     n_l_sinon_si* liste_sinon_si = n->u.condition->l_sinon_si;
-    sprintf(label_if, "if%d", if_label_count);
-    ++if_label_count;
-    char label_if_2[STRING_SIZE];
     while (liste_sinon_si != NULL)
     {
       sprintf(label_if_2, "if%d", if_label_count);
@@ -562,7 +562,7 @@ void nasm_si(n_condition* n, enum Condition_type next_condition_type, char* labe
 
   if (next_condition_type == type_else_if)
   {
-    nasm_commande("jnz", label_next_if, NULL, NULL, "Aller a la fin");
+    nasm_commande("jnz", label_next_if, NULL, NULL, "Aller au prochain if");
   }
   else if(next_condition_type == type_else)
   {
