@@ -419,6 +419,18 @@ void nasm_instruction(n_instruction* n){
     }
     nasm_si(n->u.condition, next_condition_type, label_if, NULL, label_else, label_endif);
 
+    n_l_sinon_si* liste_sinon_si = n->u.condition->l_sinon_si;
+    while (liste_sinon_si != NULL)
+    {
+      sprintf(label_if, "if%d", if_label_count);
+      ++if_label_count;
+      
+      nasm_si(liste_sinon_si->condition, , label_if, label_else, label_endif);
+      liste_sinon_si = liste_sinon_si->l_sinon_si;
+    }
+    
+
+
     if(n->u.condition->l_instructions_2!=NULL)
     {
       sprintf(label_else, "%s:", label_else);
