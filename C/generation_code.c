@@ -302,6 +302,7 @@ void nasm_fonction(n_fonction* n)
   nasm_liste_instructions(n->l_instructions);
   nasm_clean_local_variables(current_symbol, 1);
   current_symbol = GLOBAL_SCOPE_NAME;
+  nasm_commande("ret", NULL, NULL, NULL, "Return");
 }
 void nasm_clean_local_variables(char* symbol_name, int clean_symbol_table)
 {
