@@ -415,6 +415,11 @@ void nasm_instruction(n_instruction* n){
     {
       next_condition_type = type_else;
     }
+    else if (n->u.condition->l_sinon_si != NULL)
+    {
+      next_condition_type = type_else_if;
+    }
+    
     else{
       next_condition_type = type_end_if;
     }
