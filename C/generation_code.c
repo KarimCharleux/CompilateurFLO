@@ -414,13 +414,13 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_if_2, "if%d", if_label_count);
     ++if_label_count;
     enum Condition_type next_condition_type;
-    if(n->u.condition->l_instructions_2 != NULL)
-    {
-      next_condition_type = type_else;
-    }
-    else if (n->u.condition->l_sinon_si != NULL)
+    if(n->u.condition->l_sinon_si != NULL)
     {
       next_condition_type = type_else_if;
+    }
+    else if (n->u.condition->l_instructions_2 != NULL)
+    {
+      next_condition_type = type_else;
     }
     else{
       next_condition_type = type_end_if;
