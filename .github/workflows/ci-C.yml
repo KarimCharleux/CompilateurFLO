@@ -30,17 +30,5 @@ jobs:
       - name: build project
         run: make --directory=C
 
-      - run: echo Calculation && ./C/output/bin/calculation
+      - run: for file in output/bin/*; do./$file; done;
         continue-on-error: true
-      - run: echo Ecrire && ./C/output/bin/ecrire
-        continue-on-error: true
-      - run: echo Lire && ./C/output/bin/lire
-        continue-on-error: true
-      - run: echo Si && ./C/output/bin/si
-        continue-on-error: true
-      - run: echo Fibo && ./C/output/bin/fibo
-        continue-on-error: true
-      - run: echo Fonction && ./C/output/bin/fonction
-        continue-on-error: true
-
-
