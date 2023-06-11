@@ -321,7 +321,7 @@ void nasm_clean_local_variables(char* symbol_name, int clean_symbol_table)
     if(clean_symbol_table)
     {
       variable_of_function_scope->variables[i]=NULL;
-      symbol->current_memory_used -=4;
+      symbol->current_memory_used +=4;
     }
     ++i;
   } 
@@ -346,7 +346,7 @@ void clean_under_scope_variables(char* symbol_name)
     sprintf(string, "Depile local variable : %s", current_variables_by_scope->variables[i]->variable_name);
     nasm_commande("add", "esp", "4", NULL, string);
     current_variables_by_scope->variables[i]=NULL;
-    symbol->current_memory_used -=4;
+    symbol->current_memory_used +=4;
     ++i;
   } 
   free(previous_variables_by_scope->next_scope);

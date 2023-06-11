@@ -18,7 +18,7 @@ jobs:
         with:
           compiler: gcc
           make: true
-          cache: cppcache
+          ccache: true
       - name: Set up NASM
         uses: ilammy/setup-nasm@v1.4.0
 
