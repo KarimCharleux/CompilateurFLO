@@ -5,6 +5,8 @@
 #define STRING_SIZE 40
 #define GLOBAL_SCOPE_NAME "_global"
 
+enum Condition_type {type_else_if, type_else, type_end_if}; 
+
 typedef struct
 {
   char* variable_name;
@@ -45,5 +47,6 @@ VariablesByScope* get_new_scope_variables();
 void clean_under_scope_variables(char* symbol_name);
 VariablesByScope* get_last_scope_variables(Symbol* symbol);
 Symbol* findSymbol(char* identifiant);
+void nasm_si(n_condition* n, enum Condition_type next_condition_type, char* label_if, char* label_next_if, char* label_else, char* label_endif);
 
 #endif

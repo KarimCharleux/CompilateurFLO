@@ -30,8 +30,5 @@ jobs:
       - name: build project
         run: make --directory=C
 
-      - run: |
-          for file in C/output/bin/* ; do
-            echo '2' | ./$file || continue
-          done
+      - run: python3 C/juge.py
         continue-on-error: true

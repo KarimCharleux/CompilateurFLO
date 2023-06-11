@@ -202,6 +202,18 @@ void afficher_n_condition(n_condition* condition, int indent)
 	afficher_n_evaluation(condition->evaluation,indent+1);
 	afficher("</condition>",indent);
 	afficher_n_l_instructions(condition->l_instructions, indent+1);
+	n_l_sinon_si* sinon_si_liste = condition->l_sinon_si;
+	while (sinon_si_liste != NULL)
+	{
+		afficher("<sinon si>",indent);
+		afficher("</condition>",indent);
+		afficher_n_evaluation(sinon_si_liste->condition->evaluation,indent+1);
+		afficher("</condition>",indent);
+		afficher_n_l_instructions(sinon_si_liste->condition->l_instructions, indent+2);
+		afficher("</sinon si>",indent);
+		sinon_si_liste = sinon_si_liste->l_sinon_si;
+	}
+	
 	if(condition->l_instructions_2 !=NULL)
 	{
 		afficher("<sinon>",indent);

@@ -393,6 +393,7 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("push", "eax", NULL, NULL, "empile eax");
 	}
   if(n->type_instruction == i_condition){
+    
     Symbol* symbol = findSymbol(current_symbol);
     VariablesByScope* variable_by_scope = get_last_scope_variables(symbol);
     variable_by_scope->next_scope = get_new_scope_variables();
@@ -403,27 +404,20 @@ void nasm_instruction(n_instruction* n){
     sprintf(label_else, "else%d", else_label_count);
     char label_endif[STRING_SIZE];
     sprintf(label_endif, "endif%d", fin_label_count);
+
     ++if_label_count;
     ++else_label_count;
     ++fin_label_count;
 
-    nasm_exp(n->u.condition->evaluation->expr);
-
-    verify_operand(n->u.condition->evaluation->expr->type_value, none, booleen);
-    nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
-    nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); 
-    if(n->u.condition->l_instructions_2!=NULL)
+    enum Condition_type next_condition_type;
+    if(n->u.condition->l_instructions_2 != NULL)
     {
-      nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon"); 
+      next_condition_type = type_else;
     }
-    else
-    {
-      nasm_commande("jnz", label_endif, NULL, NULL, "Aller a la fin");
+    else{
+      next_condition_type = type_end_if;
     }
-    sprintf(label_if, "%s:", label_if);
-    nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
-    nasm_liste_instructions(n->u.condition->l_instructions);
-    nasm_commande("jmp", label_endif, NULL, NULL, "Aller au si");
+    nasm_si(n->u.condition, next_condition_type, label_if, NULL, label_else, label_endif);
 
     if(n->u.condition->l_instructions_2!=NULL)
     {
@@ -526,6 +520,30 @@ void nasm_instruction(n_instruction* n){
     nasm_clean_local_variables(current_symbol, 0);
     nasm_commande("ret", NULL, NULL, NULL, "Return");
   }
+}
+void nasm_si(n_condition* n, enum Condition_type next_condition_type, char* label_if, char* label_next_if, char* label_else, char* label_endif)
+{
+  nasm_exp(n->evaluation->expr);
+  verify_operand(n->evaluation->expr->type_value, none, booleen);
+  nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
+  nasm_commande("cmp", "eax", "1", NULL, " on verifie la condition"); 
+
+  if (next_condition_type == type_else_if)
+  {
+    nasm_commande("jnz", label_next_if, NULL, NULL, "Aller a la fin");
+  }
+  else if(next_condition_type == type_else)
+  {
+    nasm_commande("jnz", label_else, NULL, NULL, "Aller au sinon"); 
+  }
+  else if (next_condition_type == type_end_if) 
+  {
+    nasm_commande("jnz", label_endif, NULL, NULL, "Aller a la fin");
+  }
+  sprintf(label_if, "%s:", label_if);
+  nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
+  nasm_liste_instructions(n->l_instructions);
+  nasm_commande("jmp", label_endif, NULL, NULL, "Aller au si");
 }
 enum Type nasm_appel(n_appel* appel)
 {
