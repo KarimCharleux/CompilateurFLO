@@ -1,4 +1,4 @@
-INPUT = $(basename $(notdir $(wildcard bad_input/*.flo)))
+INPUT = $(basename $(notdir $(wildcard input/*.flo)))
 
 assembleur_vers_exercutable: generation_code_nasm
 	for a in $(INPUT); do echo "Assemblage: " $${a}; nasm -g output/nasm/$${a}.nasm -f elf -o output/object/$${a}.o; ld -m elf_i386   -s -o output/bin/$${a} output/object/$${a}.o; done;
@@ -7,7 +7,7 @@ generation_code_nasm: main
 	mkdir -p output/nasm; 
 	mkdir -p output/object; 
 	mkdir -p output/bin; 
-	for a in $(INPUT); do echo "Generation code nasm: " $${a}; ./main -n bad_input/$${a}.flo > output/nasm/$${a}.nasm; done;
+	for a in $(INPUT); do echo "Generation code nasm: " $${a}; ./main -n input/$${a}.flo > output/nasm/$${a}.nasm; done;
 
 main: analyse_lexicale analyse_syntaxique
 	gcc -Wall main.c analyse_lexicale.c analyse_syntaxique.c arbre_abstrait.c generation_code.c -o main
