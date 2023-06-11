@@ -13,20 +13,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Cache C and NASM
       - name: Setup Cpp (C++ / C)
         uses: aminya/setup-cpp@v0.26.2
         with:
           compiler: gcc
           make: true
-          ccache: true
       - name: Set up NASM
         uses: ilammy/setup-nasm@v1.4.0
-
-      - name: build main
-        run: make main --directory=C
-
-      - name: build project
-        run: make --directory=C
 
       - run: cd C && python3 juge.py
         continue-on-error: true
