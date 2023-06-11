@@ -555,6 +555,8 @@ void nasm_instruction(n_instruction* n){
 }
 void nasm_si(n_condition* n, enum Condition_type next_condition_type, char* label_if, char* label_next_if, char* label_else, char* label_endif)
 {
+  sprintf(label_if, "%s:", label_if);
+  nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
   nasm_exp(n->evaluation->expr);
   verify_operand(n->evaluation->expr->type_value, none, booleen);
   nasm_commande("pop", "eax", NULL, NULL, "dépile le résultat"); 
@@ -572,8 +574,6 @@ void nasm_si(n_condition* n, enum Condition_type next_condition_type, char* labe
   {
     nasm_commande("jnz", label_endif, NULL, NULL, "Aller a la fin");
   }
-  sprintf(label_if, "%s:", label_if);
-  nasm_commande(label_if, NULL, NULL, NULL, "Entrer dans le si");
   nasm_liste_instructions(n->l_instructions);
   nasm_commande("jmp", label_endif, NULL, NULL, "Aller au si");
 }
