@@ -486,13 +486,11 @@ void nasm_instruction(n_instruction* n){
     nasm_commande("jnz", label_end_tantque, NULL, NULL, "Aller a la fin");
 
     nasm_liste_instructions(n->u.boucle->l_instructions);
-    //printSymbol(current_symbol);
+    clean_under_scope_variables(current_symbol);
     nasm_commande("jmp", label_tantque, NULL, NULL, "Aller au si");
     
     sprintf(label_end_tantque, "%s:", label_end_tantque);
     nasm_commande(label_end_tantque, NULL, NULL, NULL, "Sortie du tantque");
-    clean_under_scope_variables(current_symbol);
-    //printSymbol(current_symbol);
 	}
   if(n->type_instruction == i_affectation)
   {
