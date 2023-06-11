@@ -1,6 +1,0 @@
-entier fibo(entier n){
-	retourner 5;
-}
-
-entier x = fibo(1);
-ecrire(x);
