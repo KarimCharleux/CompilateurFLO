@@ -418,7 +418,7 @@ void nasm_instruction(n_instruction* n){
       next_condition_type = type_end_if;
     }
     nasm_si(n->u.condition, next_condition_type, label_if, NULL, label_else, label_endif);
-
+  /*
     n_l_sinon_si* liste_sinon_si = n->u.condition->l_sinon_si;
     while (liste_sinon_si != NULL)
     {
@@ -427,7 +427,7 @@ void nasm_instruction(n_instruction* n){
       
       nasm_si(liste_sinon_si->condition, , label_if, label_else, label_endif);
       liste_sinon_si = liste_sinon_si->l_sinon_si;
-    }
+    }*/
     
 
 
