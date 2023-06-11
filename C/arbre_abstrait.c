@@ -317,9 +317,17 @@ n_l_sinon_si* creer_n_l_sinon_si(n_condition* condition, n_l_sinon_si* l_sinon_s
 {
 	n_l_sinon_si* n =malloc(sizeof(n_l_sinon_si));
 	n->condition = condition;
-	n->l_sinon_si = l_sinon_si;
+	n->l_sinon_si = NULL;
 
-	return n;
+	if(l_sinon_si==NULL)
+	{
+		return n;
+	}
+	n_l_sinon_si* l_sinon_si_pointer= l_sinon_si;
+	while (l_sinon_si_pointer->l_sinon_si != NULL)l_sinon_si_pointer = l_sinon_si_pointer->l_sinon_si;
+	l_sinon_si_pointer->l_sinon_si = n;
+
+	return l_sinon_si;
 }
 
 // INSTRUCTION -----------------------------------------------------------------------------------------------------------------
