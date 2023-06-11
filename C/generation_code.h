@@ -2,7 +2,7 @@
 #define __GENERATION_CODE__
 
 #define MAX_SYMBOL_TABLE_SIZE 10
-#define STRING_SIZE 30
+#define STRING_SIZE 40
 #define GLOBAL_SCOPE_NAME "_global"
 
 typedef struct

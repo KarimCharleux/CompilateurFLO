@@ -311,7 +311,7 @@ void nasm_clean_local_variables(char* symbol_name, int clean_symbol_table)
   VariablesByScope* variable_of_function_scope = symbol->variables_by_scope;
   while (variable_of_function_scope->variables[i] != NULL)
   {
-    char string[40];
+    char string[STRING_SIZE];
     sprintf(string, "Depile local variable : %s", variable_of_function_scope->variables[i]->variable_name);
     nasm_commande("add", "esp", "4", NULL, string);
     if(clean_symbol_table)
@@ -338,7 +338,7 @@ void clean_under_scope_variables(char* symbol_name)
   }
   while (current_variables_by_scope->variables[i] != NULL)
   {
-    char string[40];
+    char string[STRING_SIZE];
     sprintf(string, "Depile local variable : %s", current_variables_by_scope->variables[i]->variable_name);
     nasm_commande("add", "esp", "4", NULL, string);
     current_variables_by_scope->variables[i]=NULL;
