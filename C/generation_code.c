@@ -419,28 +419,32 @@ void nasm_instruction(n_instruction* n){
       next_condition_type = type_end_if;
     }
     nasm_si(n->u.condition, next_condition_type, label_if, NULL, label_else, label_endif);
-  /*
+  
     n_l_sinon_si* liste_sinon_si = n->u.condition->l_sinon_si;
+    sprintf(label_if, "if%d", if_label_count);
+    ++if_label_count;
+    char label_if_2[STRING_SIZE];
     while (liste_sinon_si != NULL)
     {
-      sprintf(label_if, "if%d", if_label_count);
+      sprintf(label_if_2, "if%d", if_label_count);
       ++if_label_count;
       enum Condition_type next_condition_type;
       if(liste_sinon_si->l_sinon_si != NULL)
       {
         next_condition_type = type_else_if;
       }
-      else if ()
+      else if (n->u.condition->l_instructions_2 != NULL)
       {
-
+        next_condition_type = type_else;
       } 
       else{
         next_condition_type = type_end_if;
       }
-      nasm_si(liste_sinon_si->condition, , label_if, label_else, label_endif);
+      nasm_si(liste_sinon_si->condition, next_condition_type , label_if, label_if_2  , label_else, label_endif);
       liste_sinon_si = liste_sinon_si->l_sinon_si;
+      strcpy(label_if, label_if_2);
     }
-    */
+    
 
     if(n->u.condition->l_instructions_2!=NULL)
     {
