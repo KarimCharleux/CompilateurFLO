@@ -276,7 +276,8 @@ void nasm_prog(n_programme *n) {
 
   nasm_liste_instructions(n->instructions);
 
-  nasm_commande("mov", "eax", "1" , NULL, "1 est le code de SYS_EXIT");
+  nasm_commande("mov", "eax", "1" , NULL, "EXIT CODE");
+  nasm_commande("mov", "ebx", "0" , NULL, "RETURN CODE");
   nasm_commande("int", "0x80", NULL, NULL, "exit");
 }
 void nasm_liste_fonctions(n_l_fonctions *n) {
@@ -424,12 +425,22 @@ void nasm_instruction(n_instruction* n){
     {
       sprintf(label_if, "if%d", if_label_count);
       ++if_label_count;
-      
+      enum Condition_type next_condition_type;
+      if(liste_sinon_si->l_sinon_si != NULL)
+      {
+        next_condition_type = type_else_if;
+      }
+      else if ()
+      {
+
+      } 
+      else{
+        next_condition_type = type_end_if;
+      }
       nasm_si(liste_sinon_si->condition, , label_if, label_else, label_endif);
       liste_sinon_si = liste_sinon_si->l_sinon_si;
-    }*/
-    
-
+    }
+    */
 
     if(n->u.condition->l_instructions_2!=NULL)
     {
